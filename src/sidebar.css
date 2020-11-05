@@ -1,0 +1,229 @@
+@keyframes swing {
+  from {
+    transform: rotate(5deg);
+  }
+  to {
+    transform: rotate(-5deg);
+  }
+}
+
+.itemContainer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.itemInfo,
+.itemInfoTop {
+  font-size: 10pt;
+  opacity: 0.7;
+  margin-top: -2px;
+}
+
+.clockTransition {
+  transition-duration: 0.5s;
+}
+
+.progress-ring {
+  position: absolute;
+  transform: translate(27px, 172px) rotate(-90deg);
+  z-index: -1;
+}
+
+.clockText {
+  fill: var(--light);
+  font-family: "Piazzolla", serif;
+  font-size: 18px;
+  paint-order: stroke;
+  stroke: var(--dark);
+  stroke-width: 7px;
+  stroke-linecap: butt;
+  stroke-linejoin: round;
+}
+.clockCenter {
+  width: 0px;
+  height: 0px;
+  transform: translate(96.8px, -451.7px);
+}
+.bigHand {
+  position: absolute;
+  width: 12px;
+  transform: translate(-49%, -89%);
+}
+
+.monthBackground {
+  width: 70px;
+  height: 70px;
+  position: absolute;
+  transform: translate(68px, 103px);
+  border-radius: 100%;
+  z-index: -1;
+  opacity: 0.6;
+}
+
+.pendulumHolder {
+  position: absolute;
+  width: 0;
+  height: 0;
+  animation-name: swing;
+  animation-duration: 2.5s;
+  animation-iteration-count: infinite;
+  animation-direction: alternate-reverse;
+  animation-timing-function: ease-in-out;
+}
+
+.pendulum {
+  transform: translate(-50%, 0);
+  width: 88px;
+}
+
+.smallHand {
+  position: absolute;
+  width: 22px;
+  transform: translate(-49%, -83%);
+}
+
+.smallerHand {
+  position: absolute;
+  width: 12px;
+  transform: translate(-50%, -83%);
+}
+
+.clockDisplay {
+  position: absolute;
+  width: 120px;
+  color: var(--light);
+  transform: translate(35px, -360px);
+  text-align: center;
+  font-size: 14pt;
+}
+
+.clockTopCenter {
+  width: 0px;
+  height: 0px;
+  transform: translate(96px, -559.5px);
+}
+
+.itemInfoTop {
+  margin-top: 0px;
+  margin-bottom: -4px;
+}
+
+.itemPreview,
+.itemPreviewButton {
+  background-color: var(--light);
+  padding: 4px 8px;
+  border-radius: 8px;
+  margin: 4px;
+  display: flex;
+  align-items: center;
+  position: relative;
+  font-weight: normal;
+  color: var(--dark);
+  text-transform: none;
+  text-align: left;
+  font-size: inherit;
+  transition-duration: 0s;
+}
+
+.itemPreviewButton:hover,
+.itemPreviewButton:focus {
+  background-color: var(--light);
+  transform: translateY(-1px);
+  box-shadow: 0 0 10px 0 var(--light);
+  z-index: 1;
+}
+
+.itemPreviewButton:active {
+  background-color: var(--light);
+  transform: translateY(2px);
+}
+
+.itemPreviewExtension {
+  position: absolute;
+  left: -2px;
+  right: -2px;
+  top: 100%;
+  z-index: 1;
+  background-color: var(--light);
+  border-radius: 0px 0px 8px 8px;
+  border: 2px solid var(--dark);
+  border-top: none;
+  padding: 4px;
+  font-size: 11pt;
+}
+
+.itemNumber {
+  background-color: var(--dark);
+  color: var(--light);
+  font-size: 13pt;
+  padding: 0px 5px;
+  height: 98%;
+  border-radius: 6px;
+  margin-right: 4px;
+  margin-left: -4px;
+  display: flex;
+  align-items: center;
+}
+
+.categoryHeader {
+  color: var(--light);
+  text-align: center;
+  margin-top: 14px;
+  margin-bottom: 4px;
+  font-size: 14pt;
+  text-transform: capitalize;
+  font-family: "Piazzolla", serif;
+}
+
+.lightDivider {
+  width: 100%;
+  height: 1px;
+  background-image: linear-gradient(
+    to right,
+    var(--dark),
+    var(--light),
+    var(--dark)
+  );
+  opacity: 0.4;
+  margin: 0px auto;
+}
+
+.sidebar {
+  width: 250px;
+  min-width: 180px;
+  margin: 8px;
+  height: 600px;
+  color: var(--light);
+}
+
+.eventSlot {
+  height: 60px;
+  margin: 8px 0px;
+  border: 2px dashed var(--light);
+  border-radius: 6px;
+  opacity: 0.5;
+}
+
+.discardButton {
+  font-size: 10pt;
+  margin: 0px -6px;
+  left: 0px;
+  border: 3px solid var(--light);
+  border-radius: 100px;
+  width: 25px;
+  height: 25px;
+  padding: 0px;
+}
+
+.discardButton:disabled {
+  opacity: 1;
+}
+
+.skillPenalty {
+  color: #a00;
+}
+
+.skillBonus {
+  color: #05a;
+}

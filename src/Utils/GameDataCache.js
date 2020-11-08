@@ -47,17 +47,6 @@ export async function GetDocument(collection, document) {
   return gameDataCache[collection][document];
 }
 
-export function GetTraits(raw) {
-  let item = {};
-  let parts = raw.split("&");
-  item.id = parts[0];
-  for (let i = 1; i < parts.length; i++) {
-    let keyval = parts[i].split("=");
-    item[keyval[0]] = keyval[1];
-  }
-  return item;
-}
-
 export async function GetDocuments(collection, documentList) {
   if (documentList.length == 0) return {};
   return new Promise(resolve => {

@@ -1,3 +1,5 @@
+import React from "react";
+
 export const monthColors = [
   "#ac8a74",
   "#92aa5d",
@@ -14,3 +16,18 @@ export function TitleCase(s) {
 }
 
 export const defaultActionButton = "➤";
+
+export function GetName(item, plural) {
+  return plural ? item.plural || item.name : item.name;
+}
+
+export function AddLineBreaks(text) {
+  console.log(text.split("\n"));
+  return (
+    <div>
+      {text.split("\n").map((line, i) => (
+        <div key={i}>{line}</div>
+      ))}
+    </div>
+  );
+}

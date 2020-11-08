@@ -7,6 +7,7 @@ import Actions from "./Actions";
 import Result from "./Result";
 import NewUser from "../Account/NewUser";
 import YouPanel from "./YouPanel";
+import Alchemy from "./Alchemy";
 import { GetPlace } from "../Utils/GameDataCache";
 import QuickActions from "./QuickActions";
 import Clock from "./Clock";
@@ -96,7 +97,7 @@ export default class Game extends React.Component {
           { merge: true }
         );
     }
-    if (tab == "you") {
+    if (tab == "you" || tab == "alchemy") {
       this.setState({ currentTab: tab, showSidebars: false });
     } else {
       this.setState({ showSidebars: false });
@@ -204,7 +205,9 @@ export default class Game extends React.Component {
             <div style={{ height: "0px", opacity: 0 }}>
               ----------------------------------------------------------------------------------------------------
             </div>
-            {this.state.currentTab == "you" ? (
+            {this.state.currentTab == "alchemy" ? (
+              <Alchemy player={player} />
+            ) : this.state.currentTab == "you" ? (
               <YouPanel player={player} />
             ) : (
               <div>

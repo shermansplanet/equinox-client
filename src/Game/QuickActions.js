@@ -50,6 +50,12 @@ export default class QuickActions extends React.Component {
         >
           You
         </button>
+        <button
+          disabled={this.props.action !== ""}
+          onClick={() => this.props.setTab("alchemy")}
+        >
+          Alchemy
+        </button>
         {buttons}
         <button
           className="mobileShow"

@@ -10,8 +10,12 @@ import {
   ShortTimeString,
   RealTimeString
 } from "../Utils/TimeUtils";
-import { canTakeAction } from "../Utils/ServerCloneUtils";
-import { TitleCase, defaultActionButton } from "../Utils/StyleUtils";
+import {
+  canTakeAction,
+  condenseItems,
+  GetTraits
+} from "../Utils/ServerCloneUtils";
+import { TitleCase, defaultActionButton, GetName } from "../Utils/StyleUtils";
 import Loader from "../Loader";
 
 export default class Action extends React.Component {
@@ -24,7 +28,8 @@ export default class Action extends React.Component {
     this.init();
     this.state = {
       loading: true,
-      args: {}
+      args: {},
+      varieties: []
     };
   }
 
@@ -49,10 +54,19 @@ export default class Action extends React.Component {
     if (data.check != undefined) {
       skillData = await GetDocument("skills", data.check.skill);
     }
-    var items = await GetDocuments("items", [
-      ...Object.keys(data.costs || {}),
-      ...Object.keys(data.requirements || {})
-    ]);
+    let costKeys = Object.keys(data.costs || {});
+    let itemList = [...costKeys, ...Object.keys(data.requirements || {})];
+    for (let i of costKeys) {
+      for (let item in player.inventory) {
+        if (item.startsWith(i)) {
+          let variety = GetTraits(item).variety;
+          if (variety !== undefined) {
+            itemList.push(variety);
+          }
+        }
+      }
+    }
+    var items = await GetDocuments("items", itemList);
     this.setState({ loading: false, data, skillData, items });
   };
 
@@ -102,16 +116,59 @@ export default class Action extends React.Component {
         </span>
       );
     }
+
+    let player = this.props.player;
+    let condensedInventory = condenseItems(player.inventory);
+
     if (action.costs != null) {
       for (var item in action.costs) {
-        var count = this.props.player.inventory[item] || 0;
+        var count = player.inventoryTotals[item] || 0;
         var hasEnough = count >= action.costs[item];
         updates.push(
           <span>
             {hasEnough ? "This will cost you " : "Unlock this with "}
-            <b>{action.costs[item] + " " + this.state.items[item].name}</b> (you
-            have <b>{count}</b>).
+            <b>
+              {action.costs[item] +
+                " " +
+                GetName(this.state.items[item], action.costs[item] != 1)}
+            </b>{" "}
+            (you have <b>{count}</b>).
           </span>
+        );
+        let ids = [];
+        for (let i in condensedInventory) {
+          if (i.startsWith(item)) {
+            ids.push(i);
+          }
+        }
+        if (ids.length <= 1) {
+          continue;
+        }
+        let chosenVarieties = this.state.varieties[item];
+        if (chosenVarieties == undefined) {
+          chosenVarieties = [ids[0]];
+        }
+        let options = ids.map((id, i) => {
+          let traits = GetTraits(id);
+          let variety = traits.variety;
+          return (
+            <option key={i} value={id}>
+              {(variety ? this.state.items[variety].name + " " : "") +
+                this.state.items[traits.id].name}
+            </option>
+          );
+        });
+        updates.push(
+          <div>
+            Use your{" "}
+            <select
+              onChange={e => {
+                const val = e.target.value;
+              }}
+            >
+              {options}
+            </select>
+          </div>
         );
       }
     }
@@ -121,7 +178,7 @@ export default class Action extends React.Component {
         if (item.startsWith("checkpoint")) {
           continue;
         }
-        var count = this.props.player.inventory[item] || 0;
+        var count = this.props.player.inventoryTotals[item] || 0;
         var req = action.requirements[item];
         var hasEnough =
           count >= req.min && (req.max == undefined || count <= req.max);
@@ -135,7 +192,8 @@ export default class Action extends React.Component {
               : req.min == req.max
               ? `exactly ${req.min} `
               : `between ${req.min} and ${req.max} `}
-            <b>{this.state.items[item].name}</b> (you have <b>{count}</b>).
+            <b>{GetName(this.state.items[item], (req.max || req.min) != 1)}</b>{" "}
+            (you have <b>{count}</b>).
           </span>
         );
       }

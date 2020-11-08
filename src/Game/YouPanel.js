@@ -1,7 +1,8 @@
 import React from "react";
-import { GetDocuments, GetTraits } from "../Utils/GameDataCache";
-import { TitleCase } from "../Utils/StyleUtils";
+import { GetDocuments } from "../Utils/GameDataCache";
+import { TitleCase, GetName } from "../Utils/StyleUtils";
 import { ShortTimeString } from "../Utils/TimeUtils";
+import { condenseItems, GetTraits } from "../Utils/ServerCloneUtils";
 
 export default class YouPanel extends React.Component {
   constructor(props) {
@@ -21,6 +22,12 @@ export default class YouPanel extends React.Component {
 
   updateItems = async () => {
     var itemList = Object.keys(this.props.player.inventory);
+    for (let i of itemList) {
+      let variety = GetTraits(i).variety;
+      if (variety !== undefined) {
+        itemList.push(variety);
+      }
+    }
     var itemDocs = await GetDocuments("items", itemList);
     this.setState({ itemDocs });
   };
@@ -50,7 +57,10 @@ export default class YouPanel extends React.Component {
     var docs = this.state.skillDocs;
     var skillList = [];
     for (var id in skills) {
-      if (docs[id] != undefined && skills[id] > 0) {
+      if (
+        docs[id] != undefined &&
+        (skills[id] > 0 || baseSkills[id] !== undefined)
+      ) {
         skillList.push(id);
       }
     }
@@ -62,7 +72,7 @@ export default class YouPanel extends React.Component {
       var skill = docs[id];
       const ci = i;
       const selected = this.state.selectedSkill == i;
-      let base = this.props.player.baseSkills[id] || 0;
+      let base = Math.floor(this.props.player.baseSkills[id] || 0);
       let diffused = this.props.player.diffusedSkills[id] || 0;
       let skillValue = this.props.player.skills[id];
       let bleed = diffused - base;
@@ -114,10 +124,12 @@ export default class YouPanel extends React.Component {
   renderItems = () => {
     var itemsByCategory = {};
     let categoryNames = ["status"];
-    for (var id in this.props.player.inventory) {
+    let condensedInventory = condenseItems(this.props.player.inventory);
+
+    for (var id in condensedInventory) {
       var baseid = id.split("&")[0];
       var item = this.state.itemDocs[baseid];
-      var count = this.props.player.inventory[id];
+      var count = condensedInventory[id];
       if (!item || !item.name || count <= 0 || item.hidden) {
         continue;
       }
@@ -131,7 +143,12 @@ export default class YouPanel extends React.Component {
       if (!categoryNames.includes(c)) {
         categoryNames.push(c);
       }
-      itemsByCategory[c].push({ id, item, count });
+      let variety = GetTraits(id).variety;
+      let label = GetName(item, count != 1);
+      if (variety !== undefined) {
+        label = this.state.itemDocs[variety].name + " " + label;
+      }
+      itemsByCategory[c].push({ id, item, label: TitleCase(label), count });
     }
     var categories = [];
     for (var category of categoryNames) {
@@ -143,17 +160,34 @@ export default class YouPanel extends React.Component {
           0.1 * a.id.localeCompare(b.id)
       );
       for (var item of itemsByCategory[category]) {
-        var traits = GetTraits(item.id);
+        let traits = GetTraits(item.id);
+        let renderedTraits = [];
+        for (let t in traits) {
+          let val = traits[t];
+          if (t == "id" || t == "variety") {
+            continue;
+          }
+          if (t == "q" && val == 0) {
+            continue;
+          }
+          if (t == "decay") {
+            renderedTraits.push(
+              <div className="itemInfo">{ShortTimeString(val)} left</div>
+            );
+            continue;
+          }
+          renderedTraits.push(
+            <div className="itemInfo">
+              {TitleCase(t)}: {val}
+            </div>
+          );
+        }
         items.push(
           <div key={item.id} className="itemPreview">
             <div className="itemNumber">{item.count}</div>
             <div>
-              <b>{item.item.name}</b>
-              {traits.decay == undefined ? null : (
-                <div className="itemInfo">
-                  {ShortTimeString(traits.decay)} left
-                </div>
-              )}
+              <b>{TitleCase(item.label)}</b>
+              {renderedTraits}
             </div>
           </div>
         );

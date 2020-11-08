@@ -45,8 +45,9 @@ export default class RightSidebar extends React.Component {
     let cardIds = this.props.player.cards[this.props.location.cardset];
     let wanderAction = await GetDocument("actions", "newcard");
     let wanderTime = ShortTimeString(wanderAction.minutes);
+    let wanderMinutes = wanderAction.minutes;
     if (cardIds == undefined || cardIds.length == 0) {
-      this.setState({ availableCards: [], wanderTime });
+      this.setState({ availableCards: [], wanderTime, wanderMinutes });
       return;
     }
     let cardData = await GetDocuments("actions", cardIds);
@@ -55,7 +56,8 @@ export default class RightSidebar extends React.Component {
     });
     this.setState({
       availableCards,
-      wanderTime
+      wanderTime,
+      wanderMinutes
     });
   };
 
@@ -130,6 +132,8 @@ export default class RightSidebar extends React.Component {
       cards.push(<div key={i} className="eventSlot" />);
     }
 
+    console.log(player.minutes, this.state.wanderMinutes);
+
     return (
       <div className="sidebar">
         <div className="action">
@@ -144,7 +148,8 @@ export default class RightSidebar extends React.Component {
                 }}
                 disabled={
                   this.props.action != "" ||
-                  (player.cards[cardset] || []).length >= this.HAND_SIZE
+                  (player.cards[cardset] || []).length >= this.HAND_SIZE ||
+                  player.minutes < this.state.wanderMinutes
                 }
                 onClick={() => {
                   var uid = app.auth().currentUser.uid;

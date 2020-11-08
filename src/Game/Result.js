@@ -3,6 +3,8 @@ import app from "firebase/app";
 import "firebase/firestore";
 import "firebase/auth";
 import { GetDocument, GetDocuments, GetPlace } from "../Utils/GameDataCache";
+import { GetName, AddLineBreaks } from "../Utils/StyleUtils";
+import { condenseItems, GetTraits } from "../Utils/ServerCloneUtils";
 
 export default class Result extends React.Component {
   constructor(props) {
@@ -26,14 +28,16 @@ export default class Result extends React.Component {
       location = await GetPlace(this.props.player, resultData.location);
     }
 
-    var itemKeys = [];
-    for (var itemKey in resultData.items || []) {
-      itemKeys.push(itemKey);
+    var itemList = Object.keys(this.props.player.inventoryDelta);
+    for (let i of itemList) {
+      let variety = GetTraits(i).variety;
+      if (variety !== undefined) {
+        itemList.push(variety);
+      }
     }
-    for (var itemKey in actionData.costs || []) {
-      itemKeys.push(itemKey);
-    }
-    var items = await GetDocuments("items", itemKeys);
+    var items = await GetDocuments("items", itemList);
+
+    console.log(items);
 
     var skillids = [];
     if (actionData.check != undefined) {
@@ -88,10 +92,14 @@ export default class Result extends React.Component {
     }
 
     if (actionData.check != undefined) {
+      let fail = this.props.player.result == 0;
       updates.push(
         <span>
-          You {this.props.player.result == 0 ? "failed" : "succeeded"} in a{" "}
-          <b>{this.state.skills[actionData.check.skill].name}</b> challenge!
+          You {fail ? "failed" : "succeeded"} in a{" "}
+          <b>{this.state.skills[actionData.check.skill].name}</b> challenge
+          {fail
+            ? " and learned from your experience! (You learn more the lower your odds of success.)"
+            : "!"}
         </span>
       );
     }
@@ -110,38 +118,29 @@ export default class Result extends React.Component {
       }
     }
 
-    if (resultData.items != undefined) {
-      for (var itemUpdate in resultData.items) {
-        var itemName = this.state.items[itemUpdate].name;
-        var delta = this.props.player.inventoryDelta[itemUpdate];
-        if (delta === undefined || delta === 0) {
-          continue;
-        }
-        updates.push(
-          <span>
-            You {delta < 0 ? "lost " + -delta : "got " + delta}{" "}
-            <b>{itemName}</b>. You now have have{" "}
-            {this.props.player.inventory[itemUpdate] || "no"} <b>{itemName}</b>.
-          </span>
-        );
-      }
-    }
+    let condensedInventory = condenseItems(this.props.player.inventory);
 
-    if (actionData.costs != undefined) {
-      for (var itemUpdate in actionData.costs) {
-        var itemName = this.state.items[itemUpdate].name;
-        var delta = this.props.player.inventoryDelta[itemUpdate];
-        if (delta === undefined || delta === 0) {
-          continue;
-        }
-        updates.push(
-          <span>
-            You {delta < 0 ? "lost " + -delta : "got " + delta}{" "}
-            <b>{itemName}</b>. You now have have{" "}
-            {this.props.player.inventory[itemUpdate]} <b>{itemName}</b>.
-          </span>
-        );
+    let itemDeltas = this.props.player.inventoryDelta;
+    for (var itemUpdate in itemDeltas) {
+      let item = this.state.items[itemUpdate.split("&")[0]];
+      let itemAmount = condensedInventory[itemUpdate] || 0;
+      var delta = itemDeltas[itemUpdate];
+      if (delta === undefined || delta === 0) {
+        continue;
       }
+      let variety = GetTraits(itemUpdate).variety;
+      let deltaLabel = GetName(item, delta != 1);
+      let resultLabel = GetName(item, itemAmount != 1);
+      if (variety !== undefined) {
+        deltaLabel = this.state.items[variety].name + " " + deltaLabel;
+        resultLabel = this.state.items[variety].name + " " + resultLabel;
+      }
+      updates.push(
+        <span>
+          You {delta < 0 ? "lost " + -delta : "got " + delta}{" "}
+          <b>{deltaLabel}</b>. You now have {itemAmount} <b>{resultLabel}</b>.
+        </span>
+      );
     }
 
     return (
@@ -154,7 +153,7 @@ export default class Result extends React.Component {
           }}
         >
           <div className="actionBody">
-            <div>{resultData.text}</div>
+            {AddLineBreaks(resultData.text)}
             {updates.length == 0 ? null : <div className="divider" />}
             {updates.map((data, id) => (
               <div key={id} className="update">

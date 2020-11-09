@@ -7,35 +7,6 @@ export default class QuickActions extends React.Component {
     super(props);
   }
   render() {
-    const quickActions = {}; //[{ action: "aw9iwzuNYuVh7Ug1INH1", label: "Spells" }];
-    var buttons = [];
-    for (var i in quickActions) {
-      const qa = quickActions[i];
-      const cid = qa.action;
-      buttons.push(
-        <button
-          className="quickAction"
-          disabled={this.props.action !== ""}
-          key={i}
-          onClick={() => {
-            var uid = app.auth().currentUser.uid;
-            this.props.setTab("spells");
-            app
-              .firestore()
-              .collection("gameplay")
-              .doc(uid)
-              .set(
-                {
-                  action: cid
-                },
-                { merge: true }
-              );
-          }}
-        >
-          {qa.label}
-        </button>
-      );
-    }
     return (
       <div className="quickActions buttonRow">
         <button
@@ -51,12 +22,26 @@ export default class QuickActions extends React.Component {
           You
         </button>
         <button
+          className="quickAction"
           disabled={this.props.action !== ""}
-          onClick={() => this.props.setTab("alchemy")}
+          onClick={() => {
+            var uid = app.auth().currentUser.uid;
+            this.props.setTab("alchemy");
+            app
+              .firestore()
+              .collection("gameplay")
+              .doc(uid)
+              .set(
+                {
+                  action: "softRefresh",
+                  args: { loadAlchemy: true }
+                },
+                { merge: true }
+              );
+          }}
         >
           Alchemy
         </button>
-        {buttons}
         <button
           className="mobileShow"
           disabled={this.props.action !== ""}

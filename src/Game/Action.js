@@ -28,8 +28,7 @@ export default class Action extends React.Component {
     this.init();
     this.state = {
       loading: true,
-      args: {},
-      varieties: []
+      args: {}
     };
   }
 
@@ -57,17 +56,47 @@ export default class Action extends React.Component {
     let costKeys = Object.keys(data.costs || {});
     let itemList = [...costKeys, ...Object.keys(data.requirements || {})];
     for (let i of costKeys) {
-      for (let item in player.inventory) {
-        if (item.startsWith(i)) {
-          let variety = GetTraits(item).variety;
-          if (variety !== undefined) {
-            itemList.push(variety);
+      for (let itemToMatch of data.matchingIds[i]) {
+        for (let item in player.inventory) {
+          if (item.startsWith(itemToMatch)) {
+            itemList.push(item);
+            let variety = GetTraits(item).variety;
+            if (variety !== undefined) {
+              itemList.push(variety);
+            }
           }
         }
       }
     }
     var items = await GetDocuments("items", itemList);
-    this.setState({ loading: false, data, skillData, items });
+
+    let condensedInventory = condenseItems(player.inventory);
+    let varieties = {};
+    for (let itemId in data.costs) {
+      let ids = [];
+      for (let itemToMatch of data.matchingIds[itemId]) {
+        for (let i in condensedInventory) {
+          if (i.startsWith(itemToMatch)) {
+            ids.push(i);
+          }
+        }
+      }
+      let total = 0;
+      let i = 0;
+      let chosenVarieties = [];
+      while (total < data.costs[itemId]) {
+        let amount = condensedInventory[ids[i]];
+        total += amount;
+        if (total > data.costs[itemId]) {
+          amount -= total - data.costs[itemId];
+        }
+        chosenVarieties.push([ids[i], amount]);
+        i++;
+      }
+      varieties[itemId] = chosenVarieties;
+    }
+
+    this.setState({ loading: false, data, skillData, items, varieties });
   };
 
   componentWillUnmount() {
@@ -76,13 +105,17 @@ export default class Action extends React.Component {
 
   takeAction = action_id => {
     var uid = this.auth.currentUser.uid;
+    console.log(this.state.varieties);
     this.db
       .collection("gameplay")
       .doc(uid)
       .set(
         {
           action: action_id,
-          args: this.state.args
+          args: {
+            ...this.state.args,
+            itemVarieties: JSON.stringify(this.state.varieties)
+          }
         },
         { merge: true }
       );
@@ -122,7 +155,10 @@ export default class Action extends React.Component {
 
     if (action.costs != null) {
       for (var item in action.costs) {
-        var count = player.inventoryTotals[item] || 0;
+        let count = 0;
+        for (let i of action.matchingIds[item]) {
+          count += player.inventoryTotals[i] || 0;
+        }
         var hasEnough = count >= action.costs[item];
         updates.push(
           <span>
@@ -135,39 +171,122 @@ export default class Action extends React.Component {
             (you have <b>{count}</b>).
           </span>
         );
+        if (!hasEnough) {
+          continue;
+        }
         let ids = [];
-        for (let i in condensedInventory) {
-          if (i.startsWith(item)) {
-            ids.push(i);
+        for (let itemToMatch of action.matchingIds[item]) {
+          for (let i in condensedInventory) {
+            if (i.startsWith(itemToMatch)) {
+              ids.push(i);
+            }
           }
         }
         if (ids.length <= 1) {
           continue;
         }
+        const itemId = item;
         let chosenVarieties = this.state.varieties[item];
-        if (chosenVarieties == undefined) {
-          chosenVarieties = [ids[0]];
-        }
         let options = ids.map((id, i) => {
           let traits = GetTraits(id);
           let variety = traits.variety;
           return (
             <option key={i} value={id}>
-              {(variety ? this.state.items[variety].name + " " : "") +
-                this.state.items[traits.id].name}
+              {(variety
+                ? GetName(this.state.items[variety], false) + " "
+                : "") +
+                GetName(this.state.items[traits.id], true) +
+                " (" +
+                condensedInventory[ids[i]] +
+                ")"}
             </option>
           );
         });
         updates.push(
           <div>
-            Use your{" "}
-            <select
-              onChange={e => {
-                const val = e.target.value;
-              }}
-            >
-              {options}
-            </select>
+            {chosenVarieties.map((chosenVariety, index) => {
+              const i = index;
+              return (
+                <div key={index}>
+                  {i == 0 ? "Use " : "and "}
+                  {i == 0 ? (
+                    chosenVariety[1] || 0
+                  ) : (
+                    <input
+                      type="number"
+                      style={{ width: "30px" }}
+                      value={chosenVariety[1] || 0}
+                      onChange={e => {
+                        const val = parseInt(e.target.value);
+                        if (
+                          val < 0 ||
+                          val > condensedInventory[chosenVarieties[i][0]]
+                        ) {
+                          return;
+                        }
+                        let total = val;
+                        for (let ii in chosenVarieties) {
+                          if (ii == 0 || ii == i) continue;
+                          total += chosenVarieties[ii][1];
+                        }
+                        let first = action.costs[itemId] - total;
+                        if (
+                          first < 0 ||
+                          first > condensedInventory[chosenVarieties[0][0]]
+                        )
+                          return;
+                        this.setState(oldState => {
+                          if (!oldState.varieties[itemId]) {
+                            oldState.varieties[itemId] = chosenVarieties;
+                          }
+                          oldState.varieties[itemId][i][1] = val;
+                          oldState.varieties[itemId][0][1] = first;
+                          return oldState;
+                        });
+                      }}
+                    />
+                  )}{" "}
+                  of your{" "}
+                  <select
+                    value={chosenVariety[0]}
+                    onChange={e => {
+                      const val = e.target.value;
+                      this.setState(oldState => {
+                        if (!oldState.varieties[itemId]) {
+                          oldState.varieties[itemId] = chosenVarieties;
+                        }
+                        if (
+                          condensedInventory[val] <
+                          oldState.varieties[itemId][i][1]
+                        ) {
+                          return;
+                        }
+                        oldState.varieties[itemId][i][0] = val;
+                        return oldState;
+                      });
+                    }}
+                  >
+                    {options}
+                  </select>
+                  {i < chosenVarieties.length - 1 ? null : (
+                    <button
+                      onClick={() =>
+                        this.setState(oldState => {
+                          let el = [[ids[0], 0]];
+                          if (!oldState.varieties[itemId]) {
+                            oldState.varieties[itemId] = chosenVarieties;
+                          }
+                          oldState.varieties[itemId].push(el);
+                          return oldState;
+                        })
+                      }
+                    >
+                      +
+                    </button>
+                  )}
+                </div>
+              );
+            })}
           </div>
         );
       }
@@ -178,7 +297,10 @@ export default class Action extends React.Component {
         if (item.startsWith("checkpoint")) {
           continue;
         }
-        var count = this.props.player.inventoryTotals[item] || 0;
+        let count = 0;
+        for (let i of action.matchingIds[item]) {
+          count += player.inventoryTotals[i] || 0;
+        }
         var req = action.requirements[item];
         var hasEnough =
           count >= req.min && (req.max == undefined || count <= req.max);

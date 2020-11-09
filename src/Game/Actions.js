@@ -46,6 +46,9 @@ export default class Header extends React.Component {
         enabled={enabled && !a.locked}
       />
     ));
+    if (this.props.noExtras) {
+      return renderedActions;
+    }
     if (player.actionSet === "0be1cnBUHoOu30Se1PT0") {
       renderedActions.push(
         <Market player={player} action={this.props.action} />

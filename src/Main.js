@@ -36,12 +36,10 @@ export default class Main extends React.Component {
         var actionData = (await actionDoc.get()).data();
         var currentAction = actionData ? actionData.action : "";
         if (currentAction == "refresh" || currentAction == "") {
-          await actionDoc.set(
-            {
-              action: currentAction != "" ? "" : "refresh"
-            },
-            { merge: true }
-          );
+          await actionDoc.set({
+            action: currentAction != "" ? "" : "refresh",
+            args: { loadAlchemy: true }
+          });
         }
         this.setState({ authUser, loading: false });
       } else {

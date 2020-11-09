@@ -49,8 +49,42 @@ export default class Clock extends React.Component {
   }
 
   render() {
+    let daylightMod = Math.abs(GetCurrentMonth() - 3) - 2;
+    let dayLength = 0.5 + daylightMod / 12;
     return (
       <div style={{ width: "180px", margin: "8px" }}>
+        <svg className="progress-ring" width="140" height="140">
+          <circle
+            className="progress-ring__circle clockTransition"
+            stroke="#234"
+            strokeWidth="19"
+            fill="transparent"
+            r="45"
+            cx="70"
+            cy="70"
+          />
+        </svg>
+        <svg
+          className="progress-ring"
+          style={{
+            transform: `translate(27px, 172px) rotate(${(0.5 - dayLength) *
+              180}deg)`
+          }}
+          width="140"
+          height="140"
+        >
+          <circle
+            strokeDasharray="283 283"
+            strokeDashoffset={283 - dayLength * 283}
+            className="day-ring__circle clockTransition"
+            stroke="#705838"
+            strokeWidth="19"
+            fill="transparent"
+            r="45"
+            cx="70"
+            cy="70"
+          />
+        </svg>
         <svg className="progress-ring" width="140" height="140">
           <circle
             strokeDasharray="390 390"

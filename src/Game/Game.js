@@ -66,7 +66,10 @@ export default class Game extends React.Component {
       .onSnapshot(doc => {
         var newState = { action: doc.data()?.action };
         if (newState.action == "") {
-          newState.currentTab = "actions";
+          newState.currentTab =
+            doc.data().args && doc.data().args.loadAlchemy
+              ? "alchemy"
+              : "actions";
         }
         this.setState(newState);
       });
@@ -90,14 +93,11 @@ export default class Game extends React.Component {
         .firestore()
         .collection("gameplay")
         .doc(uid)
-        .set(
-          {
-            action: "softRefresh"
-          },
-          { merge: true }
-        );
+        .set({
+          action: "softRefresh"
+        });
     }
-    if (tab == "you" || tab == "alchemy") {
+    if (tab == "you") {
       this.setState({ currentTab: tab, showSidebars: false });
     } else {
       this.setState({ showSidebars: false });
@@ -182,7 +182,14 @@ export default class Game extends React.Component {
               </button>
             </div>
           )}
-          <Actions player={player} action={this.state.action} />
+          {this.state.currentTab == "alchemy" ? (
+            <Alchemy player={player} location={this.state.location} />
+          ) : null}
+          <Actions
+            noExtras={this.state.currentTab == "alchemy"}
+            player={player}
+            action={this.state.action}
+          />
         </div>
       );
     }
@@ -205,9 +212,7 @@ export default class Game extends React.Component {
             <div style={{ height: "0px", opacity: 0 }}>
               ----------------------------------------------------------------------------------------------------
             </div>
-            {this.state.currentTab == "alchemy" ? (
-              <Alchemy player={player} />
-            ) : this.state.currentTab == "you" ? (
+            {this.state.currentTab == "you" ? (
               <YouPanel player={player} />
             ) : (
               <div>

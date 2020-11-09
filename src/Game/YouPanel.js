@@ -176,6 +176,14 @@ export default class YouPanel extends React.Component {
             );
             continue;
           }
+          if (t == "location") {
+            if (val !== this.props.player.location) {
+              renderedTraits.push(
+                <div className="itemInfo">Somewhere else</div>
+              );
+            }
+            continue;
+          }
           renderedTraits.push(
             <div className="itemInfo">
               {TitleCase(t)}: {val}

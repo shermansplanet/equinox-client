@@ -1,8 +1,16 @@
+function GetTotalItemCount(player, action, id) {
+  let total = 0;
+  for (let i of action.matchingIds[id]) {
+    total += player.inventoryTotals[i] || 0;
+  }
+  return total;
+}
+
 export function canTakeAction(player, action) {
   if (action.costs !== undefined) {
     for (let costItem in action.costs) {
       let req = action.costs[costItem];
-      let count = player.inventoryTotals[costItem] || 0;
+      let count = GetTotalItemCount(player, action, costItem);
       if (count < req) {
         return false;
       }
@@ -10,9 +18,9 @@ export function canTakeAction(player, action) {
   }
 
   if (action.requirements !== undefined) {
-    for (costItem in action.requirements) {
-      req = action.requirements[costItem];
-      count = player.inventoryTotals[costItem] || 0;
+    for (let costItem in action.requirements) {
+      let req = action.requirements[costItem];
+      let count = GetTotalItemCount(player, action, costItem);
       if (count < req.min || (req.max !== undefined && count > req.max)) {
         return false;
       }

@@ -5,7 +5,8 @@
   "dependencies": {
     "firebase": "^7.24.0",
     "react": "16.14.0",
-    "react-dom": "16.14.0"
+    "react-dom": "16.14.0",
+    "react-draggable": "^4.4.3"
   },
   "scripts": {
     "start": "react-scripts start",

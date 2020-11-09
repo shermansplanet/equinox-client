@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "dependencies": {
-    "firebase": "^7.24.0",
+    "firebase": "^8.0.1",
     "react": "16.14.0",
     "react-dom": "16.14.0",
     "react-draggable": "^4.4.3"

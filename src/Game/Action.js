@@ -105,7 +105,6 @@ export default class Action extends React.Component {
 
   takeAction = action_id => {
     var uid = this.auth.currentUser.uid;
-    console.log(this.state.varieties);
     this.db
       .collection("gameplay")
       .doc(uid)
@@ -129,195 +128,198 @@ export default class Action extends React.Component {
 
     var updates = [];
     var skillData = this.state.skillData;
-    if (skillData != null) {
-      var playerSkill =
-        this.props.player.skills === undefined
-          ? 0
-          : this.props.player.skills[skillData.id] || 0;
-      var skillName = skillData.name;
-      updates.push(
-        <span>
-          Your <b>{skillName}</b> {skillData.label} gives you a{" "}
-          <b>
-            {Math.min(
-              100,
-              Math.round((playerSkill / action.check.difficulty) * 100)
-            )}
-            %
-          </b>{" "}
-          chance of success.
-        </span>
-      );
-    }
-
     let player = this.props.player;
     let condensedInventory = condenseItems(player.inventory);
-
-    if (action.costs != null) {
-      for (var item in action.costs) {
-        let count = 0;
-        for (let i of action.matchingIds[item]) {
-          count += player.inventoryTotals[i] || 0;
-        }
-        var hasEnough = count >= action.costs[item];
+    if (!this.props.hideExtras) {
+      if (skillData != null) {
+        var playerSkill =
+          this.props.player.skills === undefined
+            ? 0
+            : this.props.player.skills[skillData.id] || 0;
+        var skillName = skillData.name;
         updates.push(
           <span>
-            {hasEnough ? "This will cost you " : "Unlock this with "}
+            Your <b>{skillName}</b> {skillData.label} gives you a{" "}
             <b>
-              {action.costs[item] +
-                " " +
-                GetName(this.state.items[item], action.costs[item] != 1)}
+              {Math.min(
+                100,
+                Math.round((playerSkill / action.check.difficulty) * 100)
+              )}
+              %
             </b>{" "}
-            (you have <b>{count}</b>).
+            chance of success.
           </span>
         );
-        if (!hasEnough) {
-          continue;
-        }
-        let ids = [];
-        for (let itemToMatch of action.matchingIds[item]) {
-          for (let i in condensedInventory) {
-            if (i.startsWith(itemToMatch)) {
-              ids.push(i);
+      }
+
+      if (action.costs != null) {
+        for (var item in action.costs) {
+          let count = 0;
+          for (let i of action.matchingIds[item]) {
+            count += player.inventoryTotals[i] || 0;
+          }
+          var hasEnough = count >= action.costs[item];
+          updates.push(
+            <span>
+              {hasEnough ? "This will cost you " : "Unlock this with "}
+              <b>
+                {action.costs[item] +
+                  " " +
+                  GetName(this.state.items[item], action.costs[item] != 1)}
+              </b>{" "}
+              (you have <b>{count}</b>).
+            </span>
+          );
+          if (!hasEnough) {
+            continue;
+          }
+          let ids = [];
+          for (let itemToMatch of action.matchingIds[item]) {
+            for (let i in condensedInventory) {
+              if (i.startsWith(itemToMatch)) {
+                ids.push(i);
+              }
             }
           }
-        }
-        if (ids.length <= 1) {
-          continue;
-        }
-        const itemId = item;
-        let chosenVarieties = this.state.varieties[item];
-        let options = ids.map((id, i) => {
-          let traits = GetTraits(id);
-          let variety = traits.variety;
-          return (
-            <option key={i} value={id}>
-              {(variety
-                ? GetName(this.state.items[variety], false) + " "
-                : "") +
-                GetName(this.state.items[traits.id], true) +
-                " (" +
-                condensedInventory[ids[i]] +
-                ")"}
-            </option>
-          );
-        });
-        updates.push(
-          <div>
-            {chosenVarieties.map((chosenVariety, index) => {
-              const i = index;
-              return (
-                <div key={index}>
-                  {i == 0 ? "Use " : "and "}
-                  {i == 0 ? (
-                    chosenVariety[1] || 0
-                  ) : (
-                    <input
-                      type="number"
-                      style={{ width: "30px" }}
-                      value={chosenVariety[1] || 0}
+          if (ids.length <= 1) {
+            continue;
+          }
+          const itemId = item;
+          let chosenVarieties = this.state.varieties[item];
+          let options = ids.map((id, i) => {
+            let traits = GetTraits(id);
+            let variety = traits.variety;
+            return (
+              <option key={i} value={id}>
+                {(variety
+                  ? GetName(this.state.items[variety], false) + " "
+                  : "") +
+                  GetName(this.state.items[traits.id], true) +
+                  " (" +
+                  condensedInventory[ids[i]] +
+                  ")"}
+              </option>
+            );
+          });
+          updates.push(
+            <div>
+              {chosenVarieties.map((chosenVariety, index) => {
+                const i = index;
+                return (
+                  <div key={index}>
+                    {i == 0 ? "Use " : "and "}
+                    {i == 0 ? (
+                      chosenVariety[1] || 0
+                    ) : (
+                      <input
+                        type="number"
+                        style={{ width: "30px" }}
+                        value={chosenVariety[1] || 0}
+                        onChange={e => {
+                          const val = parseInt(e.target.value);
+                          if (
+                            val < 0 ||
+                            val > condensedInventory[chosenVarieties[i][0]]
+                          ) {
+                            return;
+                          }
+                          let total = val;
+                          for (let ii in chosenVarieties) {
+                            if (ii == 0 || ii == i) continue;
+                            total += chosenVarieties[ii][1];
+                          }
+                          let first = action.costs[itemId] - total;
+                          if (
+                            first < 0 ||
+                            first > condensedInventory[chosenVarieties[0][0]]
+                          )
+                            return;
+                          this.setState(oldState => {
+                            if (!oldState.varieties[itemId]) {
+                              oldState.varieties[itemId] = chosenVarieties;
+                            }
+                            oldState.varieties[itemId][i][1] = val;
+                            oldState.varieties[itemId][0][1] = first;
+                            return oldState;
+                          });
+                        }}
+                      />
+                    )}{" "}
+                    of your{" "}
+                    <select
+                      value={chosenVariety[0]}
                       onChange={e => {
-                        const val = parseInt(e.target.value);
-                        if (
-                          val < 0 ||
-                          val > condensedInventory[chosenVarieties[i][0]]
-                        ) {
-                          return;
-                        }
-                        let total = val;
-                        for (let ii in chosenVarieties) {
-                          if (ii == 0 || ii == i) continue;
-                          total += chosenVarieties[ii][1];
-                        }
-                        let first = action.costs[itemId] - total;
-                        if (
-                          first < 0 ||
-                          first > condensedInventory[chosenVarieties[0][0]]
-                        )
-                          return;
+                        const val = e.target.value;
                         this.setState(oldState => {
                           if (!oldState.varieties[itemId]) {
                             oldState.varieties[itemId] = chosenVarieties;
                           }
-                          oldState.varieties[itemId][i][1] = val;
-                          oldState.varieties[itemId][0][1] = first;
+                          if (
+                            condensedInventory[val] <
+                            oldState.varieties[itemId][i][1]
+                          ) {
+                            return;
+                          }
+                          oldState.varieties[itemId][i][0] = val;
                           return oldState;
                         });
                       }}
-                    />
-                  )}{" "}
-                  of your{" "}
-                  <select
-                    value={chosenVariety[0]}
-                    onChange={e => {
-                      const val = e.target.value;
-                      this.setState(oldState => {
-                        if (!oldState.varieties[itemId]) {
-                          oldState.varieties[itemId] = chosenVarieties;
-                        }
-                        if (
-                          condensedInventory[val] <
-                          oldState.varieties[itemId][i][1]
-                        ) {
-                          return;
-                        }
-                        oldState.varieties[itemId][i][0] = val;
-                        return oldState;
-                      });
-                    }}
-                  >
-                    {options}
-                  </select>
-                  {i < chosenVarieties.length - 1 ? null : (
-                    <button
-                      onClick={() =>
-                        this.setState(oldState => {
-                          let el = [[ids[0], 0]];
-                          if (!oldState.varieties[itemId]) {
-                            oldState.varieties[itemId] = chosenVarieties;
-                          }
-                          oldState.varieties[itemId].push(el);
-                          return oldState;
-                        })
-                      }
                     >
-                      +
-                    </button>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        );
+                      {options}
+                    </select>
+                    {i < chosenVarieties.length - 1 ? null : (
+                      <button
+                        onClick={() =>
+                          this.setState(oldState => {
+                            let el = [[ids[0], 0]];
+                            if (!oldState.varieties[itemId]) {
+                              oldState.varieties[itemId] = chosenVarieties;
+                            }
+                            oldState.varieties[itemId].push(el);
+                            return oldState;
+                          })
+                        }
+                      >
+                        +
+                      </button>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          );
+        }
       }
-    }
 
-    if (action.requirements != null) {
-      for (var item in action.requirements) {
-        if (item.startsWith("checkpoint")) {
-          continue;
+      if (action.requirements != null) {
+        for (var item in action.requirements) {
+          if (item.startsWith("checkpoint")) {
+            continue;
+          }
+          let count = 0;
+          for (let i of action.matchingIds[item]) {
+            count += player.inventoryTotals[i] || 0;
+          }
+          var req = action.requirements[item];
+          var hasEnough =
+            count >= req.min && (req.max == undefined || count <= req.max);
+          updates.push(
+            <span>
+              {hasEnough ? "You unlocked this with " : "Unlock this with "}
+              {req.max == undefined
+                ? `at least ${req.min} `
+                : req.min == 0
+                ? `at most ${req.max} `
+                : req.min == req.max
+                ? `exactly ${req.min} `
+                : `between ${req.min} and ${req.max} `}
+              <b>
+                {GetName(this.state.items[item], (req.max || req.min) != 1)}
+              </b>{" "}
+              (you have <b>{count}</b>).
+            </span>
+          );
         }
-        let count = 0;
-        for (let i of action.matchingIds[item]) {
-          count += player.inventoryTotals[i] || 0;
-        }
-        var req = action.requirements[item];
-        var hasEnough =
-          count >= req.min && (req.max == undefined || count <= req.max);
-        updates.push(
-          <span>
-            {hasEnough ? "You unlocked this with " : "Unlock this with "}
-            {req.max == undefined
-              ? `at least ${req.min} `
-              : req.min == 0
-              ? `at most ${req.max} `
-              : req.min == req.max
-              ? `exactly ${req.min} `
-              : `between ${req.min} and ${req.max} `}
-            <b>{GetName(this.state.items[item], (req.max || req.min) != 1)}</b>{" "}
-            (you have <b>{count}</b>).
-          </span>
-        );
       }
     }
 

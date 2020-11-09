@@ -37,8 +37,6 @@ export default class Result extends React.Component {
     }
     var items = await GetDocuments("items", itemList);
 
-    console.log(items);
-
     var skillids = [];
     if (actionData.check != undefined) {
       skillids.push(actionData.check.skill);

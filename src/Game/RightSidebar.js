@@ -132,8 +132,6 @@ export default class RightSidebar extends React.Component {
       cards.push(<div key={i} className="eventSlot" />);
     }
 
-    console.log(player.minutes, this.state.wanderMinutes);
-
     return (
       <div className="sidebar">
         <div className="action">

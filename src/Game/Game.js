@@ -182,9 +182,7 @@ export default class Game extends React.Component {
               </button>
             </div>
           )}
-          {this.state.currentTab == "alchemy" ? (
-            <Alchemy player={player} location={this.state.location} />
-          ) : null}
+
           <Actions
             noExtras={this.state.currentTab == "alchemy"}
             player={player}
@@ -212,7 +210,13 @@ export default class Game extends React.Component {
             <div style={{ height: "0px", opacity: 0 }}>
               ----------------------------------------------------------------------------------------------------
             </div>
-            {this.state.currentTab == "you" ? (
+            {this.state.currentTab == "alchemy" ? (
+              <Alchemy
+                player={player}
+                location={this.state.location}
+                action={this.state.action}
+              />
+            ) : this.state.currentTab == "you" ? (
               <YouPanel player={player} />
             ) : (
               <div>

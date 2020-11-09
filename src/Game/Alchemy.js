@@ -7,13 +7,29 @@ import {
 } from "../Utils/ServerCloneUtils";
 import { TitleCase, GetName } from "../Utils/StyleUtils";
 import "firebase/firestore";
+import Draggable from "react-draggable";
+import Action from "./Action";
 
 export default class Alchemy extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       itemDocs: null,
-      actionDocs: null
+      actionDocs: null,
+      currentlyDragging: null,
+      secondary: null
+    };
+    this.actions = [];
+    this.dom = {};
+    document.onmousemove = e => {
+      this.setState({ dragCenterX: e.clientX, dragCenterY: e.clientY });
+    };
+    document.ontouchmove = e => {
+      console.log(e);
+      let touch = e.changedTouches[0];
+      let x = touch.pageX;
+      let y = touch.pageY;
+      this.setState({ dragCenterX: x, dragCenterY: y });
     };
   }
 
@@ -31,6 +47,7 @@ export default class Alchemy extends React.Component {
       }
     }
     var itemDocs = await GetDocuments("items", itemList);
+    this.actions = [];
     this.setState({ itemDocs });
   };
 
@@ -39,7 +56,8 @@ export default class Alchemy extends React.Component {
       "actions",
       this.props.player.availableActions
     );
-    this.setState({ actionDocs });
+    this.actions = [];
+    this.setState({ actionDocs, mapping: this.getMapping(actionDocs) });
   };
 
   componentDidMount() {
@@ -62,7 +80,7 @@ export default class Alchemy extends React.Component {
     }
   }
 
-  renderItems = () => {
+  getMapping = actionDocs => {
     let itemsToRender = [];
     let condensedInventory = condenseItems(this.props.player.inventory);
     for (let i of this.props.location.items || []) {
@@ -72,8 +90,8 @@ export default class Alchemy extends React.Component {
     for (let id1 in condensedInventory) {
       let traits1 = GetTraits(id1);
       selfOptions[id1] = [];
-      for (let actionId in this.state.actionDocs) {
-        let action = this.state.actionDocs[actionId];
+      for (let actionId in actionDocs) {
+        let action = actionDocs[actionId];
         let inventoryTotals = {};
         inventoryTotals[traits1.id] = 1;
         if (canTakeAction({ inventoryTotals }, action)) {
@@ -90,15 +108,15 @@ export default class Alchemy extends React.Component {
       for (let id2 in condensedInventory) {
         if (id1 == id2) continue;
         let traits2 = GetTraits(id2);
-        for (let actionId in this.state.actionDocs) {
+        for (let actionId in actionDocs) {
           if (
             selfOptions[id1].includes(actionId) ||
             selfOptions[id2].includes(actionId)
           ) {
             continue;
           }
-          let action = this.state.actionDocs[actionId];
-          let inventoryTotals = {}; //this.props.player.inventoryTotals;
+          let action = actionDocs[actionId];
+          let inventoryTotals = {};
           inventoryTotals[traits1.id] = 1;
           inventoryTotals[traits2.id] = 1;
           if (canTakeAction({ inventoryTotals }, action)) {
@@ -119,23 +137,89 @@ export default class Alchemy extends React.Component {
         }
       }
     }
-    let renderedItems = [];
     itemsToRender.sort();
-    for (let itemId of itemsToRender) {
+    return {
+      itemsToRender,
+      selfOptions,
+      otherOptions
+    };
+  };
+
+  renderItems = () => {
+    let renderedItems = [];
+    let dragCenterX = this.state.dragCenterX || 0;
+    let dragCenterY = this.state.dragCenterY || 0;
+    let noMatch = true;
+    for (let itemId of this.state.mapping.itemsToRender) {
+      const i = itemId;
       let traits = GetTraits(itemId);
       let item = this.state.itemDocs[traits.id];
+      if (item == undefined) {
+        continue;
+      }
       let label = GetName(item, false);
       let variety = traits.variety;
       if (variety !== undefined) {
         label = this.state.itemDocs[variety].name + " " + label;
       }
+      let selected = this.state.currentlyDragging == i;
+      let validOption = true;
+      let inBounds = false;
+      if (this.state.currentlyDragging) {
+        validOption = selected;
+        let options =
+          this.state.mapping.otherOptions[this.state.currentlyDragging] || {};
+        if (options[itemId] !== undefined) {
+          validOption = true;
+
+          let dragRect = this.dom[i].getBoundingClientRect();
+          inBounds =
+            dragCenterX > dragRect.left &&
+            dragCenterX < dragRect.right &&
+            dragCenterY > dragRect.top &&
+            dragCenterY < dragRect.bottom;
+        }
+      }
+      if (inBounds) {
+        noMatch = false;
+        this.actions = this.state.mapping.otherOptions[
+          this.state.currentlyDragging
+        ][i];
+      }
       renderedItems.push(
-        <div key={traits.id} className="itemPreview">
-          <div>
-            <b>{TitleCase(label)}</b>
-          </div>
-        </div>
+        <Draggable
+          key={i}
+          position={selected ? null : { x: 0, y: 0 }}
+          onStart={() => this.setState({ currentlyDragging: i })}
+          onStop={() => this.setState({ currentlyDragging: null })}
+        >
+          <span>
+            <div
+              ref={ref => (this.dom[i] = ref)}
+              key={traits.id}
+              className={
+                "itemPreview draggableItem" +
+                (validOption ? " " : " invalidItem ") +
+                (inBounds ? " highlightedItem " : " ") +
+                "element_" +
+                ((item.traits || {}).element || "")
+              }
+              style={
+                this.state.currentlyDragging && !selected
+                  ? { pointerEvents: "none" }
+                  : {}
+              }
+            >
+              <b>{TitleCase(label)}</b>
+            </div>
+          </span>
+        </Draggable>
       );
+    }
+    if (noMatch && this.state.currentlyDragging) {
+      this.actions = this.state.mapping.selfOptions[
+        this.state.currentlyDragging
+      ];
     }
     return <div className="itemContainer">{renderedItems}</div>;
   };
@@ -144,6 +228,46 @@ export default class Alchemy extends React.Component {
     if (this.state.actionDocs == null || this.state.itemDocs == null) {
       return null;
     }
-    return <div>{this.renderItems()}</div>;
+    let renderedItems = [];
+    try {
+      renderedItems = this.renderItems();
+    } catch (e) {}
+    return (
+      <div>
+        <div className="lightDivider" />
+        <div
+          style={{ color: "var(--light", margin: "8px", textAlign: "center" }}
+        >
+          Drag items to each other to unlock actions. Different items may be
+          available in different locations.
+        </div>
+        <div className="lightDivider" style={{ marginBottom: "8px" }} />
+        {renderedItems}
+        <div className="alchemyActionList">
+          {(this.actions || []).map((actionId, i) => {
+            let action = this.state.actionDocs[actionId];
+            if (this.state.currentlyDragging) {
+              return (
+                <div key={i} className="alchemyAction">
+                  {action.name}
+                </div>
+              );
+            } else {
+              return (
+                <Action
+                  key={i}
+                  highlighted={this.props.action == actionId}
+                  delay={0}
+                  player={this.props.player}
+                  action={actionId}
+                  hideExtras={true}
+                  enabled={this.props.action == ""}
+                />
+              );
+            }
+          })}
+        </div>
+      </div>
+    );
   }
 }

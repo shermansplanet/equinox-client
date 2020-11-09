@@ -1,0 +1,68 @@
+.alchemyActionList {
+  display: flex;
+  flex-direction: column;
+}
+
+.alchemyAction {
+  margin: 8px;
+  padding: 12px;
+  color: var(--light);
+  text-align: center;
+  border-radius: 12px;
+  border: 2px dashed var(--light);
+  text-transform: capitalize;
+  font-weight: bold;
+}
+
+.draggableItem {
+  cursor: grab;
+  padding: 10px 12px;
+  transition-duration: 0.1s;
+}
+
+.draggableItem:hover {
+  transform: scale(1.05);
+}
+
+.draggableItem:active {
+  cursor: grabbing;
+  transform: scale(1);
+}
+
+.invalidItem {
+  opacity: 0.5;
+}
+
+.element_fire {
+  background-color: #fd8;
+  color: #840;
+}
+.element_earth {
+  background-color: #ae8;
+  color: #050;
+}
+.element_water {
+  background-color: #bdf;
+  color: #028;
+}
+
+.highlightedItem {
+  transform: scale(1.05);
+  background-color: white;
+  box-shadow: 0 0 10px 0 white, 0 0 50px 0 white;
+}
+
+.highlightedItem.element_earth {
+  transform: scale(1.05);
+  box-shadow: 0 0 10px 0 #ff0, 0 0 50px 0 #0f0;
+}
+
+.highlightedItem.element_fire {
+  transform: scale(1.05);
+  box-shadow: 0 0 10px 0 #ff0, 0 0 50px 0 #f00;
+}
+
+.highlightedItem.element_water {
+  transform: scale(1.05);
+  box-shadow: 0 0 10px 1px #0ff, 0 0 50px 5px #00f;
+}

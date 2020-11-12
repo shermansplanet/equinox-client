@@ -3,7 +3,8 @@ import { GetDocuments } from "../Utils/GameDataCache";
 import {
   condenseItems,
   GetTraits,
-  canTakeAction
+  canTakeAction,
+  getItemsByType
 } from "../Utils/ServerCloneUtils";
 import { TitleCase, GetName } from "../Utils/StyleUtils";
 import "firebase/firestore";
@@ -17,23 +18,93 @@ export default class Alchemy extends React.Component {
       itemDocs: null,
       actionDocs: null,
       currentlyDragging: null,
-      secondary: null
+      secondary: null,
+      actions: []
     };
     this.actions = [];
     this.dom = {};
-    document.onmousemove = e => {
-      this.setState({ dragCenterX: e.clientX, dragCenterY: e.clientY });
+    let mouseResponse = e => {
+      this.onMove(e.clientX, e.clientY);
     };
+    document.onmousemove = mouseResponse;
+    document.onmousedown = mouseResponse;
+    document.onmouseup = mouseResponse;
     document.ontouchmove = e => {
-      console.log(e);
       let touch = e.changedTouches[0];
       let x = touch.pageX;
       let y = touch.pageY;
-      this.setState({ dragCenterX: x, dragCenterY: y });
+      this.onMove(x, y);
     };
   }
 
-  updateItems = async () => {
+  onMove = (x, y) => {
+    let actions = [];
+    let secondary = null;
+    for (let itemId of this.state.mapping.itemsToRender) {
+      const i = itemId;
+      if (this.dom[i] == null) continue;
+      let options =
+        this.state.mapping.otherOptions[this.state.currentlyDragging] || {};
+      if (options[itemId] !== undefined) {
+        let dragRect = this.dom[i].getBoundingClientRect();
+        let inBounds =
+          x > dragRect.left &&
+          x < dragRect.right &&
+          y > dragRect.top &&
+          y < dragRect.bottom;
+        if (inBounds) {
+          secondary = itemId;
+          actions = this.state.mapping.otherOptions[
+            this.state.currentlyDragging
+          ][i];
+          break;
+        }
+      }
+    }
+    if (actions.length == 0) {
+      actions =
+        this.state.mapping.selfOptions[this.state.currentlyDragging] || [];
+    }
+    if (
+      JSON.stringify(actions) == JSON.stringify(this.state.actions) &&
+      secondary == this.state.secondary
+    ) {
+      return;
+    }
+    let itemMaps = this.state.itemMaps || {};
+    if (this.state.currentlyDragging == null) {
+      actions = this.state.actions;
+    } else {
+      let primaryBaseId = this.state.currentlyDragging.split("&")[0];
+      let secondaryBaseId = secondary ? secondary.split("&")[0] : "";
+      for (let actionId of actions) {
+        let action = this.state.actionDocs[actionId];
+        let itemMap = {};
+        for (let itemId in action.matchingIds) {
+          let matchingIds = action.matchingIds[itemId];
+          let itemName = this.state.itemDocs[itemId].name;
+          for (let i of matchingIds) {
+            if (i == primaryBaseId) {
+              itemMap[itemName] = {
+                id: this.state.currentlyDragging,
+                name: TitleCase(this.state.itemDocs[primaryBaseId].name)
+              };
+            }
+            if (secondary && i == secondaryBaseId) {
+              itemMap[itemName] = {
+                id: secondary,
+                name: TitleCase(this.state.itemDocs[secondaryBaseId].name)
+              };
+            }
+          }
+        }
+        itemMaps[actionId] = itemMap;
+      }
+    }
+    this.setState({ actions, secondary, itemMaps });
+  };
+
+  updateDocs = async () => {
     let condensedInventory = condenseItems(this.props.player.inventory);
     for (let i of this.props.location.items || []) {
       condensedInventory[i] = (condensedInventory[i] || 0) + 1;
@@ -41,42 +112,44 @@ export default class Alchemy extends React.Component {
     let inventory = Object.keys(condensedInventory);
     var itemList = [...inventory];
     for (let i of inventory) {
-      let variety = GetTraits(i).variety;
-      if (variety !== undefined) {
-        itemList.push(variety);
+      let traits = GetTraits(i);
+      if (traits.variety !== undefined) {
+        itemList.push(traits.variety);
+      }
+      if (traits.contains && traits.contains!="[]") {
+        itemList.push(traits.contains.split(",")[0]);
       }
     }
-    var itemDocs = await GetDocuments("items", itemList);
-    this.actions = [];
-    this.setState({ itemDocs });
-  };
-
-  updateActions = async () => {
     var actionDocs = await GetDocuments(
       "actions",
       this.props.player.availableActions
     );
-    this.actions = [];
-    this.setState({ actionDocs, mapping: this.getMapping(actionDocs) });
+    for (let i of this.props.player.availableActions) {
+      for (let itemId in actionDocs[i].matchingIds) {
+        itemList.push(itemId);
+      }
+    }
+    var itemDocs = await GetDocuments("items", itemList);
+    this.setState({
+      itemDocs,
+      actionDocs,
+      actions: [],
+      mapping: this.getMapping(actionDocs)
+    });
   };
 
   componentDidMount() {
-    this.updateItems();
-    this.updateActions();
+    this.updateDocs();
   }
 
   componentDidUpdate(prevProps) {
     if (
       JSON.stringify(Object.keys(this.props.player.inventory)) !==
-      JSON.stringify(Object.keys(prevProps.player.inventory))
-    ) {
-      this.updateItems();
-    }
-    if (
+        JSON.stringify(Object.keys(prevProps.player.inventory)) ||
       JSON.stringify(Object.keys(this.props.player.availableActions)) !==
-      JSON.stringify(Object.keys(prevProps.player.availableActions))
+        JSON.stringify(Object.keys(prevProps.player.availableActions))
     ) {
-      this.updateActions();
+      this.updateDocs();
     }
   }
 
@@ -89,10 +162,11 @@ export default class Alchemy extends React.Component {
       selfOptions[id1] = [];
       for (let actionId in actionDocs) {
         let action = actionDocs[actionId];
+        let inventory = {};
+        inventory[id1] = 1;
         let inventoryTotals = {};
         inventoryTotals[traits1.id] = 1;
-        if (canTakeAction({ inventoryTotals }, action)) {
-          selfOptions[id1].push(actionId);
+        if (canTakeAction({ inventoryTotals, inventory }, action)) {
           if (!itemsToRender.includes(id1)) {
             itemsToRender.push(id1);
           }
@@ -113,10 +187,13 @@ export default class Alchemy extends React.Component {
             continue;
           }
           let action = actionDocs[actionId];
+          let inventory = {};
+          inventory[id1] = 1;
+          inventory[id2] = 1;
           let inventoryTotals = {};
           inventoryTotals[traits1.id] = 1;
           inventoryTotals[traits2.id] = 1;
-          if (canTakeAction({ inventoryTotals }, action)) {
+          if (canTakeAction({ inventoryTotals, inventory }, action)) {
             if (otherOptions[id1] == undefined) {
               otherOptions[id1] = {};
             }
@@ -144,9 +221,9 @@ export default class Alchemy extends React.Component {
 
   renderItems = () => {
     let renderedItems = [];
-    let dragCenterX = this.state.dragCenterX || 0;
-    let dragCenterY = this.state.dragCenterY || 0;
-    let noMatch = true;
+    let options =
+      this.state.mapping.otherOptions[this.state.currentlyDragging] || {};
+
     for (let itemId of this.state.mapping.itemsToRender) {
       const i = itemId;
       let traits = GetTraits(itemId);
@@ -159,30 +236,17 @@ export default class Alchemy extends React.Component {
       if (variety !== undefined) {
         label = this.state.itemDocs[variety].name + " " + label;
       }
+      if (traits.contains && traits.contains!="[]") {
+        let contains = traits.contains.split(",");
+        label += " Full of ";
+        label += TitleCase(this.state.itemDocs[contains[0]].name);
+      }
       let selected = this.state.currentlyDragging == i;
-      let validOption = true;
-      let inBounds = false;
-      if (this.state.currentlyDragging) {
-        validOption = selected;
-        let options =
-          this.state.mapping.otherOptions[this.state.currentlyDragging] || {};
-        if (options[itemId] !== undefined) {
-          validOption = true;
-
-          let dragRect = this.dom[i].getBoundingClientRect();
-          inBounds =
-            dragCenterX > dragRect.left &&
-            dragCenterX < dragRect.right &&
-            dragCenterY > dragRect.top &&
-            dragCenterY < dragRect.bottom;
-        }
-      }
-      if (inBounds) {
-        noMatch = false;
-        this.actions = this.state.mapping.otherOptions[
-          this.state.currentlyDragging
-        ][i];
-      }
+      let validOption =
+        selected ||
+        this.state.currentlyDragging == null ||
+        options[i] !== undefined;
+      let inBounds = this.state.secondary == i;
       renderedItems.push(
         <Draggable
           key={i}
@@ -190,7 +254,7 @@ export default class Alchemy extends React.Component {
           onStart={() => this.setState({ currentlyDragging: i })}
           onStop={() => this.setState({ currentlyDragging: null })}
         >
-          <span>
+          <span style={selected ? { zIndex: 1, position: "relative" } : {}}>
             <div
               ref={ref => (this.dom[i] = ref)}
               key={traits.id}
@@ -213,11 +277,6 @@ export default class Alchemy extends React.Component {
         </Draggable>
       );
     }
-    if (noMatch && this.state.currentlyDragging) {
-      this.actions = this.state.mapping.selfOptions[
-        this.state.currentlyDragging
-      ];
-    }
     return <div className="itemContainer">{renderedItems}</div>;
   };
 
@@ -239,8 +298,7 @@ export default class Alchemy extends React.Component {
         <div className="lightDivider" style={{ marginBottom: "8px" }} />
         {renderedItems}
         <div className="alchemyActionList">
-          {(this.actions || []).map((actionId, i) => {
-            let action = this.state.actionDocs[actionId];
+          {(this.state.actions || []).map((actionId, i) => (
             <Action
               key={i}
               highlighted={this.props.action == actionId}
@@ -248,9 +306,10 @@ export default class Alchemy extends React.Component {
               player={this.props.player}
               action={actionId}
               hideExtras={true}
+              itemMap={this.state.itemMaps[actionId]}
               enabled={this.props.action == "" && !this.props.currentlyDragging}
-            />;
-          })}
+            />
+          ))}
         </div>
       </div>
     );

@@ -105,19 +105,20 @@ export default class Action extends React.Component {
 
   takeAction = action_id => {
     var uid = this.auth.currentUser.uid;
+    let args = this.state.args;
+    args.itemVarieties = JSON.stringify(this.state.varieties);
+    if (this.props.itemMap) {
+      let itemMap = {};
+      for (let i in this.props.itemMap) {
+        itemMap[i] = this.props.itemMap[i].id;
+      }
+      args.itemMap = itemMap;
+      args.loadAlchemy = true;
+    }
     this.db
       .collection("gameplay")
       .doc(uid)
-      .set(
-        {
-          action: action_id,
-          args: {
-            ...this.state.args,
-            itemVarieties: JSON.stringify(this.state.varieties)
-          }
-        },
-        { merge: true }
-      );
+      .set({ action: action_id, args });
   };
 
   render() {
@@ -335,6 +336,11 @@ export default class Action extends React.Component {
       goText = ShortTimeString(action.minutes);
     }
 
+    let title = action.name;
+    for (let i in this.props.itemMap || {}) {
+      title = title.replace("$" + i, this.props.itemMap[i].name);
+    }
+
     return (
       <div
         className={
@@ -354,7 +360,7 @@ export default class Action extends React.Component {
           }}
         >
           <div className="actionBody">
-            <div className="actionTitle">{action.name}</div>
+            <div className="actionTitle">{title}</div>
             {action.text}
             {action.args?.map((label, i) => (
               <div>

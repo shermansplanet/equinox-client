@@ -3,17 +3,6 @@
   flex-direction: column;
 }
 
-.alchemyAction {
-  margin: 8px;
-  padding: 12px;
-  color: var(--light);
-  text-align: center;
-  border-radius: 12px;
-  border: 2px dashed var(--light);
-  text-transform: capitalize;
-  font-weight: bold;
-}
-
 .draggableItem {
   cursor: grab;
   padding: 10px 12px;

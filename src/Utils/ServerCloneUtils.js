@@ -1,16 +1,59 @@
-function GetTotalItemCount(player, action, id) {
+function GetTotalItemCount(player, action, id, traitMatch) {
   let total = 0;
   for (let i of action.matchingIds[id]) {
-    total += player.inventoryTotals[i] || 0;
+    if ((player.inventoryTotals[i] || 0) === 0) {
+      continue;
+    }
+    if (traitMatch.length === 0) {
+      total += player.inventoryTotals[i];
+    } else {
+      for (let itemId of player.itemsByType[i] || []) {
+        let traits = GetTraits(itemId);
+        let matchesTraits = true;
+        for (let traitReq of traitMatch) {
+          if (traitReq.comparer === "=") {
+            matchesTraits =
+              matchesTraits &&
+              parseFloat(traits[traitReq.trait]) === parseFloat(traitReq.value);
+          } else if (traitReq.comparer === "<") {
+            matchesTraits =
+              matchesTraits &&
+              parseFloat(traits[traitReq.trait]) < parseFloat(traitReq.value);
+          } else if (traitReq.comparer === ">") {
+            matchesTraits =
+              matchesTraits &&
+              parseFloat(traits[traitReq.trait]) > parseFloat(traitReq.value);
+          }
+          if (!matchesTraits) {
+            break;
+          }
+        }
+        if (matchesTraits) {
+          total += player.inventory[itemId] || 0;
+        }
+      }
+    }
   }
   return total;
 }
 
+export function getItemsByType(items) {
+  let condensedInventory = {};
+  for (let id in items) {
+    let newId = id.split("&")[0];
+    condensedInventory[newId] = condensedInventory[newId] || [];
+    condensedInventory[newId].push(id);
+  }
+  return condensedInventory;
+}
+
 export function canTakeAction(player, action) {
+  player.itemsByType = getItemsByType(player.inventory);
+
   if (action.costs !== undefined) {
     for (let costItem in action.costs) {
       let req = action.costs[costItem];
-      let count = GetTotalItemCount(player, action, costItem);
+      let count = GetTotalItemCount(player, action, costItem, []);
       if (count < req) {
         return false;
       }
@@ -20,7 +63,12 @@ export function canTakeAction(player, action) {
   if (action.requirements !== undefined) {
     for (let costItem in action.requirements) {
       let req = action.requirements[costItem];
-      let count = GetTotalItemCount(player, action, costItem);
+      let count = GetTotalItemCount(
+        player,
+        action,
+        costItem,
+        req.traitMatch || []
+      );
       if (count < req.min || (req.max !== undefined && count > req.max)) {
         return false;
       }

@@ -17,6 +17,19 @@ export function TitleCase(s) {
 
 export const defaultActionButton = "➤";
 
+export const currencySymbol = (
+  <div
+    style={{
+      display: "inline-block",
+      marginRight: "1px",
+      position: "relative",
+      top: "-2px"
+    }}
+  >
+    🝑
+  </div>
+);
+
 export function GetName(item, plural) {
   return plural ? item.plural || item.name : item.name;
 }

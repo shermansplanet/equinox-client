@@ -3,8 +3,7 @@ import { GetDocuments } from "../Utils/GameDataCache";
 import {
   condenseItems,
   GetTraits,
-  canTakeAction,
-  getItemsByType
+  canTakeAction
 } from "../Utils/ServerCloneUtils";
 import { TitleCase, GetName } from "../Utils/StyleUtils";
 import "firebase/firestore";
@@ -106,9 +105,6 @@ export default class Alchemy extends React.Component {
 
   updateDocs = async () => {
     let condensedInventory = condenseItems(this.props.player.inventory);
-    for (let i of this.props.location.items || []) {
-      condensedInventory[i] = (condensedInventory[i] || 0) + 1;
-    }
     let inventory = Object.keys(condensedInventory);
     var itemList = [...inventory];
     for (let i of inventory) {
@@ -116,7 +112,7 @@ export default class Alchemy extends React.Component {
       if (traits.variety !== undefined) {
         itemList.push(traits.variety);
       }
-      if (traits.contains && traits.contains!="[]") {
+      if (traits.contains && traits.contains != "[]") {
         itemList.push(traits.contains.split(",")[0]);
       }
     }
@@ -236,7 +232,7 @@ export default class Alchemy extends React.Component {
       if (variety !== undefined) {
         label = this.state.itemDocs[variety].name + " " + label;
       }
-      if (traits.contains && traits.contains!="[]") {
+      if (traits.contains && traits.contains != "[]") {
         let contains = traits.contains.split(",");
         label += " Full of ";
         label += TitleCase(this.state.itemDocs[contains[0]].name);

@@ -146,6 +146,7 @@ export default class Result extends React.Component {
         <div
           style={{
             display: "flex",
+            flexDirection: resultData.text.length > 200 ? "column" : "row",
             justifyContent: "space-between",
             alignItems: "center"
           }}
@@ -161,6 +162,7 @@ export default class Result extends React.Component {
           </div>
           <button
             className="actionButton"
+            style={resultData.text.length > 200 ? { marginTop: "10px" } : {}}
             disabled={this.props.player.action == ""}
             onClick={this.takeAction}
           >

@@ -83,9 +83,6 @@ export default class Alchemy extends React.Component {
   getMapping = actionDocs => {
     let itemsToRender = [];
     let condensedInventory = condenseItems(this.props.player.inventory);
-    for (let i of this.props.location.items || []) {
-      condensedInventory[i] = (condensedInventory[i] || 0) + 1;
-    }
     let selfOptions = {};
     for (let id1 in condensedInventory) {
       let traits1 = GetTraits(id1);
@@ -229,9 +226,7 @@ export default class Alchemy extends React.Component {
       return null;
     }
     let renderedItems = [];
-    try {
-      renderedItems = this.renderItems();
-    } catch (e) {}
+    renderedItems = this.renderItems();
     return (
       <div>
         <div className="lightDivider" />
@@ -246,25 +241,15 @@ export default class Alchemy extends React.Component {
         <div className="alchemyActionList">
           {(this.actions || []).map((actionId, i) => {
             let action = this.state.actionDocs[actionId];
-            if (this.state.currentlyDragging) {
-              return (
-                <div key={i} className="alchemyAction">
-                  {action.name}
-                </div>
-              );
-            } else {
-              return (
-                <Action
-                  key={i}
-                  highlighted={this.props.action == actionId}
-                  delay={0}
-                  player={this.props.player}
-                  action={actionId}
-                  hideExtras={true}
-                  enabled={this.props.action == ""}
-                />
-              );
-            }
+            <Action
+              key={i}
+              highlighted={this.props.action == actionId}
+              delay={0}
+              player={this.props.player}
+              action={actionId}
+              hideExtras={true}
+              enabled={this.props.action == "" && !this.props.currentlyDragging}
+            />;
           })}
         </div>
       </div>

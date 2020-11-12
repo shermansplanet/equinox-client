@@ -26,7 +26,10 @@ export function AddLineBreaks(text) {
   return (
     <div>
       {text.split("\n").map((line, i) => (
-        <div key={i}>{line}</div>
+        <div key={i}>
+          {line}
+          <br />
+        </div>
       ))}
     </div>
   );

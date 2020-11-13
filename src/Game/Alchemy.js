@@ -166,6 +166,7 @@ export default class Alchemy extends React.Component {
         if (canTakeAction({ inventoryTotals, inventory }, action)) {
           if (!itemsToRender.includes(id1)) {
             itemsToRender.push(id1);
+            selfOptions[id1].push(actionId);
           }
         }
       }

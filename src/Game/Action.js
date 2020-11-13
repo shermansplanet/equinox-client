@@ -19,7 +19,8 @@ import {
   toChimes,
   TitleCase,
   defaultActionButton,
-  GetName
+  GetName,
+  AddLineBreaks
 } from "../Utils/StyleUtils";
 import Loader from "../Loader";
 
@@ -364,12 +365,13 @@ export default class Action extends React.Component {
           style={{
             display: "flex",
             justifyContent: "space-between",
-            alignItems: "center"
+            alignItems: "center",
+            flexDirection: action.text.length > 500 ? "column" : "row"
           }}
         >
           <div className="actionBody">
             <div className="actionTitle">{title}</div>
-            {action.text}
+            {AddLineBreaks(action.text)}
             {action.args?.map((label, i) => (
               <div>
                 <span style={{ marginRight: "8px" }}>
@@ -402,20 +404,22 @@ export default class Action extends React.Component {
               </div>
             )}
           </div>
-          <button
-            className="actionButton"
-            disabled={!this.props.enabled}
-            onClick={() => this.takeAction(this.props.action)}
-          >
-            {this.props.highlighted ? (
-              <div style={{ position: "relative" }}>
-                <span style={{ opacity: 0 }}>{goText}</span>
-                <Loader unstyled={true} />
-              </div>
-            ) : (
-              goText
-            )}
-          </button>
+          {action.results.length > 0 ? (
+            <button
+              className="actionButton"
+              disabled={!this.props.enabled}
+              onClick={() => this.takeAction(this.props.action)}
+            >
+              {this.props.highlighted ? (
+                <div style={{ position: "relative" }}>
+                  <span style={{ opacity: 0 }}>{goText}</span>
+                  <Loader unstyled={true} />
+                </div>
+              ) : (
+                goText
+              )}
+            </button>
+          ) : null}
         </div>
       </div>
     );

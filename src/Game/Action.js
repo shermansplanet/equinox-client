@@ -15,7 +15,12 @@ import {
   condenseItems,
   GetTraits
 } from "../Utils/ServerCloneUtils";
-import { TitleCase, defaultActionButton, GetName } from "../Utils/StyleUtils";
+import {
+  toChimes,
+  TitleCase,
+  defaultActionButton,
+  GetName
+} from "../Utils/StyleUtils";
 import Loader from "../Loader";
 
 export default class Action extends React.Component {
@@ -164,11 +169,14 @@ export default class Action extends React.Component {
             <span>
               {hasEnough ? "This will cost you " : "Unlock this with "}
               <b>
-                {action.costs[item] +
+                {(item == "chimes"
+                  ? toChimes(action.costs[item] / 100)
+                  : action.costs[item]) +
                   " " +
                   GetName(this.state.items[item], action.costs[item] != 1)}
               </b>{" "}
-              (you have <b>{count}</b>).
+              (you have{" "}
+              <b>{item == "chimes" ? toChimes(count / 100) : count}</b>).
             </span>
           );
           if (!hasEnough) {

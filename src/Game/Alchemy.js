@@ -18,7 +18,8 @@ export default class Alchemy extends React.Component {
       actionDocs: null,
       currentlyDragging: null,
       secondary: null,
-      actions: []
+      actions: [],
+      mapping: { itemsToRender: [], selfOptions: [], otherOptions: [] }
     };
     this.actions = [];
     this.dom = {};

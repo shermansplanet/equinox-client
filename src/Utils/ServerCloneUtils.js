@@ -12,9 +12,18 @@ function GetTotalItemCount(player, action, id, traitMatch) {
         let matchesTraits = true;
         for (let traitReq of traitMatch) {
           if (traitReq.comparer === "=") {
-            matchesTraits =
-              matchesTraits &&
-              parseFloat(traits[traitReq.trait]) === parseFloat(traitReq.value);
+            if (traitReq.value === "none") {
+              matchesTraits =
+                matchesTraits && traits[traitReq.trait] === undefined;
+            } else if (traitReq.value === "any") {
+              matchesTraits =
+                matchesTraits && traits[traitReq.trait] !== undefined;
+            } else {
+              matchesTraits =
+                matchesTraits &&
+                parseFloat(traits[traitReq.trait]) ===
+                  parseFloat(traitReq.value);
+            }
           } else if (traitReq.comparer === "<") {
             matchesTraits =
               matchesTraits &&

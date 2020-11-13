@@ -17,7 +17,7 @@ export function TitleCase(s) {
 
 export const defaultActionButton = "➤";
 
-export const currencySymbol = (
+const currencySymbol = (
   <div
     style={{
       display: "inline-block",
@@ -30,12 +30,21 @@ export const currencySymbol = (
   </div>
 );
 
+export function toChimes(number) {
+  let n = (number || 0) / 100;
+  return (
+    <span>
+      {currencySymbol}
+      {n.toFixed(2)}
+    </span>
+  );
+}
+
 export function GetName(item, plural) {
   return plural ? item.plural || item.name : item.name;
 }
 
 export function AddLineBreaks(text) {
-  console.log(text.split("\n"));
   return (
     <div>
       {text.split("\n").map((line, i) => (

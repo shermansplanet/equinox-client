@@ -318,15 +318,15 @@ export default class Action extends React.Component {
               {hasEnough ? "You unlocked this with " : "Unlock this with "}
               {req.max == undefined
                 ? `at least ${req.min} `
-                : req.min == 0
-                ? `at most ${req.max} `
                 : req.min == req.max
                 ? `exactly ${req.min} `
+                : req.min == 0
+                ? `at most ${req.max} `
                 : `between ${req.min} and ${req.max} `}
               <b>
                 {GetName(this.state.items[item], (req.max || req.min) != 1)}
-              </b>
-              {req.min == req.max ? null : (
+              </b>{" "}
+              {req.min == req.max && hasEnough ? null : (
                 <span>
                   (you have <b>{count}</b>)
                 </span>

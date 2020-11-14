@@ -240,6 +240,9 @@ export default class Alchemy extends React.Component {
         label += " Full of ";
         label += TitleCase(this.state.itemDocs[contains[0]].name);
       }
+      if (traits.temperature) {
+        label += " 🜂" + temperature;
+      }
       let selected = this.state.currentlyDragging == i;
       let validOption =
         selected ||

@@ -67,7 +67,7 @@ export default class Clock extends React.Component {
         <svg
           className="progress-ring"
           style={{
-            transform: `translate(27px, 172px) rotate(${(0.5 - dayLength) *
+            transform: `translate(27px, 172px) rotate(${(dayLength - 0.5) *
               180}deg)`
           }}
           width="140"

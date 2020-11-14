@@ -292,6 +292,24 @@ tr:nth-child(odd) {
   background: #4204;
 }
 
+.earthColor,
+.waterColor,
+.fireColor {
+  font-weight: bold;
+}
+
+.earthColor {
+  color: #040;
+}
+
+.waterColor {
+  color: #028;
+}
+
+.fireColor {
+  color: #820;
+}
+
 @media only screen and (max-width: 800px) {
   .mobileHide {
     display: none;

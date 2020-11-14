@@ -325,8 +325,13 @@ export default class Action extends React.Component {
                 : `between ${req.min} and ${req.max} `}
               <b>
                 {GetName(this.state.items[item], (req.max || req.min) != 1)}
-              </b>{" "}
-              (you have <b>{count}</b>).
+              </b>
+              {req.min == req.max ? null : (
+                <span>
+                  (you have <b>{count}</b>)
+                </span>
+              )}
+              .
             </span>
           );
         }
@@ -334,7 +339,11 @@ export default class Action extends React.Component {
     }
 
     if (action.ooc !== undefined) {
-      updates.push(action.ooc);
+      updates.push(
+        <i>
+          <b>{action.ooc}</b>
+        </i>
+      );
     }
 
     var d = new Date();

@@ -114,8 +114,11 @@ export default class Alchemy extends React.Component {
       if (traits.variety !== undefined) {
         itemList.push(traits.variety);
       }
-      if (traits.contains && traits.contains != "[]") {
-        itemList.push(traits.contains.split(",")[0]);
+      if (traits.contains) {
+        for (let contained in traits.contains) {
+          let containedTraits = GetTraits(contained);
+          itemList.push(containedTraits.id);
+        }
       }
     }
     var actionDocs = await GetDocuments(
@@ -232,16 +235,28 @@ export default class Alchemy extends React.Component {
       }
       let label = GetName(item, false);
       let variety = traits.variety;
+      let subLabels = [];
       if (variety !== undefined) {
         label = this.state.itemDocs[variety].name + " " + label;
       }
-      if (traits.contains && traits.contains != "[]") {
-        let contains = traits.contains.split(",");
-        label += " Full of ";
-        label += TitleCase(this.state.itemDocs[contains[0]].name);
+      if (traits.uniqueId) {
+        let containedItems = this.props.player.containers[traits.uniqueId];
+        if (containedItems) {
+          console.log(traits.contains);
+          for (let contained in containedItems) {
+            let containedTraits = GetTraits(contained);
+            console.log(contained);
+            // subLabels.push(
+            //   "- " +
+            //     TitleCase(this.state.itemDocs[containedTraits.id].name) +
+            //     " x" +
+            //     traits.contains[contained]
+            // );
+          }
+        }
       }
       if (traits.temperature) {
-        label += " 🜂" + temperature;
+        label += " 🜂" + traits.temperature;
       }
       let selected = this.state.currentlyDragging == i;
       let validOption =

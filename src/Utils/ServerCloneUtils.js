@@ -95,7 +95,11 @@ export function GetTraits(raw) {
     if (keyval[1] === "undefined") {
       continue;
     }
-    item[keyval[0]] = keyval[1];
+    let val = JSON.parse(keyval[1]);
+    if (!Number.isNaN(parseFloat(val))) {
+      val = parseFloat(val);
+    }
+    item[keyval[0]] = val;
   }
   return item;
 }
@@ -107,7 +111,7 @@ export function FromTraits(traits) {
       if (traits[t] === undefined) {
         continue;
       }
-      bits.push(t + "=" + traits[t]);
+      bits.push(t + "=" + JSON.stringify(traits[t]));
     }
   }
   bits.sort();

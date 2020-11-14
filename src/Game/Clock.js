@@ -75,7 +75,7 @@ export default class Clock extends React.Component {
         >
           <circle
             strokeDasharray="283 283"
-            strokeDashoffset={283 - dayLength * 283}
+            strokeDashoffset={dayLength * 283}
             className="day-ring__circle clockTransition"
             stroke="#705838"
             strokeWidth="19"

@@ -9,6 +9,7 @@ import { TitleCase, GetName } from "../Utils/StyleUtils";
 import "firebase/firestore";
 import Draggable from "react-draggable";
 import Action from "./Action";
+import Loader from "../Loader";
 
 export default class Alchemy extends React.Component {
   constructor(props) {
@@ -280,10 +281,13 @@ export default class Alchemy extends React.Component {
 
   render() {
     if (this.state.actionDocs == null || this.state.itemDocs == null) {
-      return null;
+      return (
+        <div className="centered">
+          <Loader />
+        </div>
+      );
     }
-    let renderedItems = [];
-    renderedItems = this.renderItems();
+    let renderedItems = this.renderItems();
     return (
       <div>
         <div className="lightDivider" />

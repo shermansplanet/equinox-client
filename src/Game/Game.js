@@ -65,12 +65,11 @@ export default class Game extends React.Component {
       .doc(this.auth.currentUser.uid)
       .onSnapshot(doc => {
         var newState = { action: doc.data()?.action };
-        if (newState.action == "") {
-          newState.currentTab =
-            doc.data().args && doc.data().args.loadAlchemy
-              ? "alchemy"
-              : "actions";
-        }
+        newState.currentTab =
+          doc.data().args && doc.data().args.loadAlchemy
+            ? "alchemy"
+            : "actions";
+        newState.loading = newState.currentTab != this.state.currentTab;
         this.setState(newState);
       });
 
@@ -210,7 +209,11 @@ export default class Game extends React.Component {
             <div style={{ height: "0px", opacity: 0 }}>
               ----------------------------------------------------------------------------------------------------
             </div>
-            {this.state.currentTab == "alchemy" ? (
+            {this.state.loading ? (
+              <div className="centered">
+                <Loader />
+              </div>
+            ) : this.state.currentTab == "alchemy" ? (
               <Alchemy
                 player={player}
                 location={this.state.location}

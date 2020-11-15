@@ -96,7 +96,7 @@ export function GetTraits(raw) {
       continue;
     }
     let val = JSON.parse(keyval[1]);
-    if (!Number.isNaN(parseFloat(val))) {
+    if (!isNaN(val)) {
       val = parseFloat(val);
     }
     item[keyval[0]] = val;

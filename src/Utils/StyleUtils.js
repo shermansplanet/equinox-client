@@ -46,6 +46,9 @@ export function GetName(item, plural) {
 
 export function ElementalFormat(text) {
   return text.split("$").map((t, i) => {
+    if (i == 0 && !text.startsWith("$")) {
+      return <span key={i}>{t}</span>;
+    }
     if (t.charAt(0) == "e") {
       return (
         <span key={i} className="earthColor">

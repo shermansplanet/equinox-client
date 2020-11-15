@@ -108,9 +108,8 @@ export default class Result extends React.Component {
         var skillName = skillData.name;
         updates.push(
           <span>
-            Your base <b>{skillName}</b> {skillData.label} increased by{" "}
-            {resultData.skills[skillUpdate]}. It is now{" "}
-            {this.props.player.baseSkills[skillUpdate]}!
+            Your base <b>{skillName}</b> {skillData.label} has changed! It is
+            now {this.props.player.baseSkills[skillUpdate]}.
           </span>
         );
       }
@@ -143,17 +142,19 @@ export default class Result extends React.Component {
 
     return (
       <div className="action">
+        <div className="actionBody">
+          {AddLineBreaks(resultData.text)}
+          {updates.length == 0 ? null : <div className="divider" />}
+        </div>
         <div
           style={{
             display: "flex",
-            flexDirection: resultData.text.length > 200 ? "column" : "row",
+            flexDirection: "row",
             justifyContent: "space-between",
             alignItems: "center"
           }}
         >
-          <div className="actionBody">
-            {AddLineBreaks(resultData.text)}
-            {updates.length == 0 ? null : <div className="divider" />}
+          <div>
             {updates.map((data, id) => (
               <div key={id} className="update">
                 {data}
@@ -162,7 +163,7 @@ export default class Result extends React.Component {
           </div>
           <button
             className="actionButton"
-            style={resultData.text.length > 200 ? { marginTop: "10px" } : {}}
+            style={{ marginLeft: "10px" }}
             disabled={this.props.player.action == ""}
             onClick={this.takeAction}
           >

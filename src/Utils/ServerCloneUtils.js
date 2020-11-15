@@ -132,3 +132,17 @@ export function condenseItems(items) {
   }
   return condensedInventory;
 }
+
+export function getValue(id, items) {
+  let coeff = 1;
+  if (id.includes("$")) {
+    let bits = id.split("$");
+    id = bits[1];
+    coeff = getValue(bits[0]);
+  }
+  var item = items[id];
+  if (item === undefined) {
+    return 0;
+  }
+  return coeff * (item.value || item.derivedValue || 0);
+}

@@ -4,7 +4,7 @@ import "firebase/firestore";
 import "firebase/auth";
 import { GetDocuments, GetDocument } from "../Utils/GameDataCache";
 import { condenseItems, GetTraits } from "../Utils/ServerCloneUtils";
-import { toChimes, TitleCase } from "../Utils/StyleUtils";
+import { toChimes, TitleCase, getValue } from "../Utils/StyleUtils";
 
 export default class Market extends React.Component {
   constructor(props) {
@@ -45,9 +45,6 @@ export default class Market extends React.Component {
         if (traits.variety !== undefined) {
           itemList.push(traits.variety);
         }
-        if (traits.contains && traits.contains != "[]") {
-          itemList.push(traits.contains.split(",")[0]);
-        }
       }
     }
     let itemDocs = await GetDocuments("items", itemList);
@@ -56,8 +53,11 @@ export default class Market extends React.Component {
       let id = traits.id;
       let item = itemDocs[id];
       if (!item.derivedValue || item.derivedValue == 0) continue;
+      let valueId =
+        traits.variety == undefined ? id : id + "$" + traits.variety;
       itemCounts[i] = 1;
       sellableItems.push({
+        value: getValue(valueId, itemDocs),
         item: item,
         id: i,
         count: condensedInventory[i]
@@ -95,14 +95,15 @@ export default class Market extends React.Component {
       const item = i.item;
       const id = i.id;
       const count = i.count;
+      const baseValue = i.value;
       let soldAmount = this.state.itemCounts[id];
-      let value = soldAmount * item.derivedValue * (selling ? 0.5 : 1);
+      let value = soldAmount * baseValue * (selling ? 0.5 : 1);
       renderedItems.push(
         <tr>
           <td>
             {TitleCase(item.name)} {selling ? `(${i.count})` : ""}
           </td>
-          <td>{toChimes(item.derivedValue * (selling ? 0.5 : 1))}</td>
+          <td>{toChimes(baseValue * (selling ? 0.5 : 1))}</td>
           <td>
             <input
               type="number"

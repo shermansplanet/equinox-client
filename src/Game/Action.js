@@ -113,7 +113,7 @@ export default class Action extends React.Component {
     var uid = this.auth.currentUser.uid;
     let args = this.state.args;
     args.itemVarieties = JSON.stringify(this.state.varieties);
-    if (this.props.itemMap) {
+    if (this.props.itemMap !== undefined) {
       let itemMap = {};
       for (let i in this.props.itemMap) {
         itemMap[i] = this.props.itemMap[i].id;

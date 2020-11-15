@@ -7,6 +7,13 @@
   cursor: grab;
   padding: 10px 12px;
   transition-duration: 0.1s;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.subItem {
+  font-size: 10pt;
 }
 
 .draggableItem:hover {

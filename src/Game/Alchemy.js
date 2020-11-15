@@ -114,12 +114,6 @@ export default class Alchemy extends React.Component {
       if (traits.variety !== undefined) {
         itemList.push(traits.variety);
       }
-      if (traits.contains) {
-        for (let contained in traits.contains) {
-          let containedTraits = GetTraits(contained);
-          itemList.push(containedTraits.id);
-        }
-      }
     }
     var actionDocs = await GetDocuments(
       "actions",
@@ -239,24 +233,24 @@ export default class Alchemy extends React.Component {
       if (variety !== undefined) {
         label = this.state.itemDocs[variety].name + " " + label;
       }
-      if (traits.uniqueId) {
+      if (traits.uniqueId != undefined) {
         let containedItems = this.props.player.containers[traits.uniqueId];
         if (containedItems) {
-          console.log(traits.contains);
           for (let contained in containedItems) {
             let containedTraits = GetTraits(contained);
-            console.log(contained);
-            // subLabels.push(
-            //   "- " +
-            //     TitleCase(this.state.itemDocs[containedTraits.id].name) +
-            //     " x" +
-            //     traits.contains[contained]
-            // );
+            subLabels.push(
+              "- " +
+                TitleCase(this.state.itemDocs[containedTraits.id].name) +
+                " x" +
+                containedItems[contained]
+            );
           }
         }
       }
-      if (traits.temperature) {
-        label += " 🜂" + traits.temperature;
+      if (traits.heatedBy != undefined) {
+        let heater = this.props.player.uniqueItemIds[traits.heatedBy];
+        let heaterTraits = GetTraits(heater);
+        subLabels.push("🜂" + this.state.itemDocs[heaterTraits.id].name);
       }
       let selected = this.state.currentlyDragging == i;
       let validOption =
@@ -289,6 +283,11 @@ export default class Alchemy extends React.Component {
               }
             >
               <b>{TitleCase(label)}</b>
+              {subLabels.map((line, i) => (
+                <div className="subItem" key={i}>
+                  {line}
+                </div>
+              ))}
             </div>
           </span>
         </Draggable>
@@ -320,7 +319,7 @@ export default class Alchemy extends React.Component {
         <div className="alchemyActionList">
           {(this.state.actions || []).map((actionId, i) => (
             <Action
-              key={i}
+              key={i + "_" + actionId}
               highlighted={this.props.action == actionId}
               delay={0}
               player={this.props.player}

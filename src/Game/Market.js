@@ -3,8 +3,8 @@ import app from "firebase/app";
 import "firebase/firestore";
 import "firebase/auth";
 import { GetDocuments, GetDocument } from "../Utils/GameDataCache";
-import { condenseItems, GetTraits } from "../Utils/ServerCloneUtils";
-import { toChimes, TitleCase, getValue } from "../Utils/StyleUtils";
+import { condenseItems, GetTraits, getValue } from "../Utils/ServerCloneUtils";
+import { toChimes, TitleCase } from "../Utils/StyleUtils";
 
 export default class Market extends React.Component {
   constructor(props) {
@@ -52,22 +52,23 @@ export default class Market extends React.Component {
       let traits = GetTraits(i);
       let id = traits.id;
       let item = itemDocs[id];
-      if (!item.derivedValue || item.derivedValue == 0) continue;
+      if (item.derivedValue == undefined || item.derivedValue == 0) continue;
       let valueId =
         traits.variety == undefined ? id : id + "$" + traits.variety;
       itemCounts[i] = 1;
+      let title =
+        traits.variety == undefined
+          ? item.name
+          : itemDocs[traits.variety].name + " " + item.name;
       sellableItems.push({
         value: getValue(valueId, itemDocs),
-        item: item,
+        title,
         id: i,
         count: condensedInventory[i]
       });
     }
     sellableItems.sort(
-      (a, b) =>
-        a.item.derivedValue -
-        b.item.derivedValue +
-        a.item.name.localeCompare(b.item.name) * 0.1
+      (a, b) => a.value - b.value + a.title.localeCompare(b.title) * 0.1
     );
     this.setState({ sellableItems, itemCounts });
   };
@@ -92,16 +93,16 @@ export default class Market extends React.Component {
     let selling = this.state.currentMarket == 0;
     let currentChimes = this.props.player.inventory["chimes"];
     for (let i of this.state.sellableItems) {
-      const item = i.item;
+      const title = i.title;
       const id = i.id;
       const count = i.count;
       const baseValue = i.value;
       let soldAmount = this.state.itemCounts[id];
       let value = soldAmount * baseValue * (selling ? 0.5 : 1);
       renderedItems.push(
-        <tr>
+        <tr key={id}>
           <td>
-            {TitleCase(item.name)} {selling ? `(${i.count})` : ""}
+            {TitleCase(title)} {selling ? `(${i.count})` : ""}
           </td>
           <td>{toChimes(baseValue * (selling ? 0.5 : 1))}</td>
           <td>

@@ -127,7 +127,7 @@ export default class Result extends React.Component {
         continue;
       }
       let variety = GetTraits(itemUpdate).variety;
-      let deltaLabel = GetName(item, delta != 1);
+      let deltaLabel = GetName(item, Math.abs(delta) != 1);
       let resultLabel = GetName(item, itemAmount != 1);
       if (variety !== undefined) {
         deltaLabel = this.state.items[variety].name + " " + deltaLabel;
@@ -136,7 +136,7 @@ export default class Result extends React.Component {
       updates.push(
         <span>
           You {delta < 0 ? "lost " + -delta : "got " + delta}{" "}
-          <b>{deltaLabel}</b>. You now have {itemAmount} <b>{resultLabel}</b>.
+          <b>{deltaLabel}</b> (new total {itemAmount}).
         </span>
       );
     }

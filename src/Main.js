@@ -38,7 +38,7 @@ export default class Main extends React.Component {
         if (currentAction == "refresh" || currentAction == "") {
           await actionDoc.set({
             action: currentAction != "" ? "" : "refresh",
-            args: { loadAlchemy: true }
+            args: {}
           });
         }
         this.setState({ authUser, loading: false });

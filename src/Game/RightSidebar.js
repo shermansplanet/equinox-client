@@ -6,6 +6,7 @@ import { Subscribe, Unsubscribe, ShortTimeString } from "../Utils/TimeUtils";
 import { GetDocuments, GetDocument } from "../Utils/GameDataCache";
 import { defaultActionButton } from "../Utils/StyleUtils";
 import Loader from "../Loader";
+import StatusPanel from "./StatusPanel";
 
 export default class RightSidebar extends React.Component {
   constructor(props) {
@@ -176,6 +177,7 @@ export default class RightSidebar extends React.Component {
           )}
         </div>
         {cards}
+        <StatusPanel player={player} />
       </div>
     );
   }

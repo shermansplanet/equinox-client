@@ -6,7 +6,7 @@ import ManageHome from "./ManageHome";
 import Market from "./Market";
 import { defaultActionButton } from "../Utils/StyleUtils";
 
-export default class Header extends React.Component {
+export default class Actions extends React.Component {
   constructor(props) {
     super(props);
     this.db = app.firestore();
@@ -51,7 +51,7 @@ export default class Header extends React.Component {
     }
     if (player.actionSet === "0be1cnBUHoOu30Se1PT0") {
       renderedActions.push(
-        <Market player={player} action={this.props.action} />
+        <Market key="market" player={player} action={this.props.action} />
       );
     }
     if (player.actionSet === "home" && player.address) {

@@ -138,7 +138,7 @@ export function getValue(id, items) {
   if (id.includes("$")) {
     let bits = id.split("$");
     id = bits[1];
-    coeff = getValue(bits[0]);
+    coeff = getValue(bits[0], items);
   }
   var item = items[id];
   if (item === undefined) {

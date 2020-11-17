@@ -142,16 +142,20 @@ export function condenseItems(items) {
   return condensedInventory;
 }
 
-export function getValue(id, items) {
+export function getValue(id, items, first = true) {
   let coeff = 1;
   if (id.includes("$")) {
     let bits = id.split("$");
     id = bits[1];
-    coeff = getValue(bits[0], items);
+    coeff = getValue(bits[0], items, false);
   }
   var item = items[id];
   if (item === undefined) {
     return 0;
   }
-  return coeff * (item.value || item.derivedValue || 0);
+  let val = coeff * (item.value || item.derivedValue || 0);
+  if (first) {
+    val = Math.floor(val);
+  }
+  return val;
 }

@@ -235,8 +235,7 @@ export default class Alchemy extends React.Component {
               let needsThisItem = false;
               for (let subAction of subActions) {
                 if (canTakeAction(subPlayer, subAction)) {
-                  needsThisItem = true;
-                  break;
+                  needsThisItem = !needsThisItem;
                 }
               }
               if (!needsThisItem) {
@@ -321,6 +320,20 @@ export default class Alchemy extends React.Component {
         let heaterTraits = GetTraits(heater);
         subLabels.push("🜂" + this.state.itemDocs[heaterTraits.id].name);
       }
+      if (traits.temperature != undefined) {
+        let temp = traits.temperature;
+        let desc =
+          (temp == temp) == 0
+            ? ""
+            : temp < 1
+            ? "lukewarm"
+            : temp < 6
+            ? "warm"
+            : temp < 10
+            ? "hot"
+            : "boiling";
+        subLabels.push("- " + desc);
+      }
       let selected = this.state.currentlyDragging == i;
       let validOption =
         selected ||
@@ -382,6 +395,21 @@ export default class Alchemy extends React.Component {
         >
           Drag items to each other to unlock actions. Different items may be
           available in different locations.
+        </div>
+        <div className="lightDivider" style={{ marginBottom: "8px" }} />
+        <div
+          style={{
+            color: "#f68",
+            margin: "8px",
+            textAlign: "center",
+            fontStyle: "italic",
+            fontWeight: "bold",
+            fontSize: "11pt"
+          }}
+        >
+          The alchemy system is in its very early stages, and is not
+          feature-complete. Any actions that require the alchemy system will say
+          so explicitly.
         </div>
         <div className="lightDivider" style={{ marginBottom: "8px" }} />
         {renderedItems}

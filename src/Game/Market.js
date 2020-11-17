@@ -3,7 +3,12 @@ import app from "firebase/app";
 import "firebase/firestore";
 import "firebase/auth";
 import { GetDocuments, GetDocument } from "../Utils/GameDataCache";
-import { condenseItems, GetTraits, getValue } from "../Utils/ServerCloneUtils";
+import {
+  condenseItems,
+  GetTraits,
+  FromTraits,
+  getValue
+} from "../Utils/ServerCloneUtils";
 import { toChimes, TitleCase } from "../Utils/StyleUtils";
 
 export default class Market extends React.Component {
@@ -37,14 +42,19 @@ export default class Market extends React.Component {
     let condensedInventory = condenseItems(this.props.player.inventory);
     let inventory = selling
       ? Object.keys(condensedInventory)
-      : currentMarket.items;
+      : currentMarket.items.map(item =>
+          item.includes("$")
+            ? FromTraits({
+                id: item.split("$")[0],
+                variety: item.split("$")[1]
+              })
+            : item
+        );
     var itemList = [...inventory];
-    if (selling) {
-      for (let i of inventory) {
-        let traits = GetTraits(i);
-        if (traits.variety !== undefined) {
-          itemList.push(traits.variety);
-        }
+    for (let i of inventory) {
+      let traits = GetTraits(i);
+      if (traits.variety !== undefined) {
+        itemList.push(traits.variety);
       }
     }
     let itemDocs = await GetDocuments("items", itemList);
@@ -57,7 +67,7 @@ export default class Market extends React.Component {
         traits.variety == undefined ? id : id + "$" + traits.variety;
       itemCounts[i] = 1;
       let title =
-        traits.variety == undefined
+        traits.variety == undefined || item.baseVarietyType == traits.variey
           ? item.name
           : itemDocs[traits.variety].name + " " + item.name;
       sellableItems.push({

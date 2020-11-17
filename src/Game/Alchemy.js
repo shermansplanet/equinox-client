@@ -80,31 +80,46 @@ export default class Alchemy extends React.Component {
       let secondaryBaseId = secondary ? secondary.split("&")[0] : "";
       for (let actionId of actions) {
         let action = this.state.actionDocs[actionId];
-        let itemMap = {};
+        let itemMapChoices = {};
+        let itemNames = [];
         for (let itemId in action.matchingIds) {
           let matchingIds = action.matchingIds[itemId];
           let itemName = this.state.itemDocs[itemId].name;
           for (let i of matchingIds) {
             if (i == primaryBaseId) {
-              if (itemMap[itemName] !== undefined) {
-                continue;
+              if (itemMapChoices[itemName] == undefined) {
+                itemNames.push(itemName);
+                itemMapChoices[itemName] = [];
               }
-              itemMap[itemName] = {
+              itemMapChoices[itemName].push({
                 id: this.state.currentlyDragging,
                 name: TitleCase(this.state.itemDocs[primaryBaseId].name)
-              };
+              });
             } else if (secondary && i == secondaryBaseId) {
-              if (itemMap[itemName] !== undefined) {
-                continue;
+              if (itemMapChoices[itemName] == undefined) {
+                itemNames.push(itemName);
+                itemMapChoices[itemName] = [];
               }
-              itemMap[itemName] = {
+              itemMapChoices[itemName].push({
                 id: secondary,
                 name: TitleCase(this.state.itemDocs[secondaryBaseId].name)
-              };
+              });
             }
           }
         }
-
+        let itemMap = {};
+        for (let i in itemNames) {
+          let itemName = itemNames[i];
+          let choices = itemMapChoices[itemName];
+          let map = choices[0];
+          if (choices.length > 1) {
+            let duplicateId = itemMapChoices[itemNames[i == 0 ? 1 : 0]][0].id;
+            if (duplicateId == map.id) {
+              map = choices[1];
+            }
+          }
+          itemMap[itemName] = map;
+        }
         itemMaps[actionId] = itemMap;
       }
     }
@@ -365,6 +380,9 @@ export default class Alchemy extends React.Component {
               }
             >
               <b>{TitleCase(label)}</b>
+              {traits.q == undefined ? null : (
+                <div className="qlabel">Q{Math.floor(traits.q)}</div>
+              )}
               {subLabels.map((line, i) => (
                 <div className="subItem" key={i}>
                   {line}

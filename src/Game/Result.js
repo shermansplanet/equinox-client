@@ -109,7 +109,8 @@ export default class Result extends React.Component {
         updates.push(
           <span>
             Your base <b>{skillName}</b> {skillData.label} has changed! It is
-            now {this.props.player.baseSkills[skillUpdate]}.
+            now{" "}
+            {Math.round(this.props.player.baseSkills[skillUpdate] * 10) / 10}.
           </span>
         );
       }
@@ -140,6 +141,10 @@ export default class Result extends React.Component {
       );
     }
 
+    if (this.props.action == "init") {
+      updates = [];
+    }
+
     return (
       <div className="action">
         <div className="actionBody">
@@ -163,7 +168,10 @@ export default class Result extends React.Component {
           </div>
           <button
             className="actionButton"
-            style={{ marginLeft: "10px", marginTop: "0px" }}
+            style={{
+              marginLeft: "10px",
+              marginTop: updates.length > 0 ? "0px" : "10px"
+            }}
             disabled={this.props.player.action == ""}
             onClick={this.takeAction}
           >

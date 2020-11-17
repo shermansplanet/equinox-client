@@ -11,8 +11,11 @@ export const monthColors = [
   "#9fadb6"
 ];
 
-export function TitleCase(s) {
-  return s[0].toUpperCase() + s.substring(1);
+export function TitleCase(words) {
+  return words
+    .split(" ")
+    .map(s => s[0].toUpperCase() + s.substring(1))
+    .join(" ");
 }
 
 export const defaultActionButton = "➤";

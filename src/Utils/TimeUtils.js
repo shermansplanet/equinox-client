@@ -7,7 +7,7 @@ const SPEED_COEFF = 12;
 export const MS_PER_GAME_MINUTE = (1000 * 60) / SPEED_COEFF;
 const MS_PER_GAME_HOUR = MS_PER_GAME_MINUTE * 60;
 const MS_PER_GAME_DAY = MS_PER_GAME_HOUR * 24;
-const MS_PER_GAME_MONTH = MS_PER_GAME_DAY * 45;
+export const MS_PER_GAME_MONTH = MS_PER_GAME_DAY * 45;
 
 export const monthNames = [
   "Scrawled Enigma",
@@ -82,8 +82,9 @@ export function GetCurrentHour() {
 
 export function IsDay() {
   var h = GetCurrentHour();
-  var m = GetCurrentMonth();
-  var daylightMod = Math.abs(m - 3) - 2;
+  var currentTime = new Date().getTime();
+  var m = (currentTime / MS_PER_GAME_MONTH + 1) % 8;
+  var daylightMod = Math.abs(m - 4) - 2;
   return h >= 6 + daylightMod && h < 18 - daylightMod;
 }
 

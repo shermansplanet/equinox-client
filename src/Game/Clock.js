@@ -16,7 +16,8 @@ import {
   GetCurrentDate,
   GetCurrentMonth,
   GetDayPercent,
-  GetMonthPercent
+  GetMonthPercent,
+  MS_PER_GAME_MONTH
 } from "../Utils/TimeUtils";
 import { monthColors } from "../Utils/StyleUtils";
 
@@ -49,7 +50,9 @@ export default class Clock extends React.Component {
   }
 
   render() {
-    let daylightMod = Math.abs(GetCurrentMonth() - 3) - 2;
+    var currentTime = new Date().getTime();
+    var m = (currentTime / MS_PER_GAME_MONTH + 1) % 8;
+    let daylightMod = Math.abs(m - 4) - 2;
     let dayLength = 0.5 + daylightMod / 12;
     return (
       <div style={{ width: "180px", margin: "8px" }}>

@@ -325,9 +325,10 @@ export default class Action extends React.Component {
                 : `between ${req.min} and ${req.max} `}
               <b>
                 {GetName(this.state.items[item], (req.max || req.min) != 1)}
-              </b>{" "}
+              </b>
               {req.min == req.max && hasEnough ? null : (
                 <span>
+                  {" "}
                   (you have <b>{count}</b>)
                 </span>
               )}

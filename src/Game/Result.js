@@ -151,7 +151,7 @@ export default class Result extends React.Component {
             display: "flex",
             flexDirection: "row",
             justifyContent: "space-between",
-            alignItems: "center"
+            alignItems: "flex-start"
           }}
         >
           <div>
@@ -163,7 +163,7 @@ export default class Result extends React.Component {
           </div>
           <button
             className="actionButton"
-            style={{ marginLeft: "10px" }}
+            style={{ marginLeft: "10px", marginTop: "0px" }}
             disabled={this.props.player.action == ""}
             onClick={this.takeAction}
           >

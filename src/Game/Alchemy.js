@@ -86,12 +86,17 @@ export default class Alchemy extends React.Component {
           let itemName = this.state.itemDocs[itemId].name;
           for (let i of matchingIds) {
             if (i == primaryBaseId) {
+              if (itemMap[itemName] !== undefined) {
+                continue;
+              }
               itemMap[itemName] = {
                 id: this.state.currentlyDragging,
                 name: TitleCase(this.state.itemDocs[primaryBaseId].name)
               };
-            }
-            if (secondary && i == secondaryBaseId) {
+            } else if (secondary && i == secondaryBaseId) {
+              if (itemMap[itemName] !== undefined) {
+                continue;
+              }
               itemMap[itemName] = {
                 id: secondary,
                 name: TitleCase(this.state.itemDocs[secondaryBaseId].name)
@@ -99,6 +104,7 @@ export default class Alchemy extends React.Component {
             }
           }
         }
+
         itemMaps[actionId] = itemMap;
       }
     }
@@ -106,11 +112,19 @@ export default class Alchemy extends React.Component {
   };
 
   updateDocs = async () => {
-    let condensedInventory = condenseItems(this.props.player.inventory);
+    let player = this.props.player;
+    let condensedInventory = condenseItems(player.inventory);
     let inventory = Object.keys(condensedInventory);
-    var itemList = [...inventory];
+    var itemList = [];
     for (let i of inventory) {
       let traits = GetTraits(i);
+      if (
+        traits.location !== undefined &&
+        traits.location !== player.location
+      ) {
+        continue;
+      }
+      itemList.push(i);
       if (traits.variety !== undefined) {
         itemList.push(traits.variety);
       }
@@ -157,15 +171,19 @@ export default class Alchemy extends React.Component {
       selfOptions[id1] = [];
       for (let actionId in actionDocs) {
         let action = actionDocs[actionId];
+        if (action.flags.multiItem) {
+          continue;
+        }
         let inventory = {};
         inventory[id1] = 1;
         let inventoryTotals = {};
         inventoryTotals[traits1.id] = 1;
-        if (canTakeAction({ inventoryTotals, inventory }, action)) {
+        let location = this.props.player.location;
+        if (canTakeAction({ inventoryTotals, inventory, location }, action)) {
           if (!itemsToRender.includes(id1)) {
             itemsToRender.push(id1);
-            selfOptions[id1].push(actionId);
           }
+          selfOptions[id1].push(actionId);
         }
       }
     }
@@ -189,25 +207,76 @@ export default class Alchemy extends React.Component {
           let inventoryTotals = {};
           inventoryTotals[traits1.id] = 1;
           inventoryTotals[traits2.id] = 1;
-          if (canTakeAction({ inventoryTotals, inventory }, action)) {
-            if (otherOptions[id1] == undefined) {
-              otherOptions[id1] = {};
+          let location = this.props.player.location;
+          let fakePlayer = { inventoryTotals, inventory, location };
+          if (!canTakeAction(fakePlayer, action)) {
+            continue;
+          }
+          if (action.flags.multiItem) {
+            let subActions = Object.keys(action.requirements).map(req => {
+              let action1 = Object.assign({}, action);
+              action1.requirements = { [req]: action.requirements[req] };
+              return action1;
+            });
+            let subPlayers = [
+              { id: id1, traits: traits1 },
+              { id: id2, traits: traits2 }
+            ].map(itemInfo => {
+              let subInventory = { [itemInfo.id]: 1 };
+              let subInventoryTotals = { [itemInfo.traits.id]: 1 };
+              return {
+                inventoryTotals: subInventoryTotals,
+                inventory: subInventory,
+                location
+              };
+            });
+            let allItemsNeeded = true;
+            for (let subPlayer of subPlayers) {
+              let needsThisItem = false;
+              for (let subAction of subActions) {
+                if (canTakeAction(subPlayer, subAction)) {
+                  needsThisItem = true;
+                  break;
+                }
+              }
+              if (!needsThisItem) {
+                allItemsNeeded = false;
+                break;
+              }
             }
-            if (otherOptions[id1][id2] == undefined) {
-              otherOptions[id1][id2] = [];
+            if (!allItemsNeeded) {
+              continue;
             }
-            otherOptions[id1][id2].push(actionId);
-            if (!itemsToRender.includes(id1)) {
-              itemsToRender.push(id1);
-            }
-            if (!itemsToRender.includes(id2)) {
-              itemsToRender.push(id2);
-            }
+          }
+          if (otherOptions[id1] == undefined) {
+            otherOptions[id1] = {};
+          }
+          if (otherOptions[id1][id2] == undefined) {
+            otherOptions[id1][id2] = [];
+          }
+          otherOptions[id1][id2].push(actionId);
+          if (!itemsToRender.includes(id1)) {
+            itemsToRender.push(id1);
+          }
+          if (!itemsToRender.includes(id2)) {
+            itemsToRender.push(id2);
           }
         }
       }
     }
-    itemsToRender.sort();
+    let fitnessFunc = a => {
+      let combos = selfOptions[a].length;
+      if (otherOptions[a] == undefined) {
+        return combos;
+      }
+      for (let b in otherOptions[a]) {
+        combos += otherOptions[a][b].length;
+      }
+      return combos;
+    };
+    itemsToRender.sort(
+      (a, b) => fitnessFunc(b) - fitnessFunc(a) + a.localeCompare(b) * 0.1
+    );
     return {
       itemsToRender,
       selfOptions,

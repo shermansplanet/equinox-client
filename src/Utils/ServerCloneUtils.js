@@ -1,4 +1,4 @@
-function GetTotalItemCount(player, action, id, traitMatch) {
+function GetTotalItemCount(player, action, id, traitMatch, cap = 0) {
   let total = 0;
   for (let i of action.matchingIds[id]) {
     if ((player.inventoryTotals[i] || 0) === 0) {
@@ -9,6 +9,12 @@ function GetTotalItemCount(player, action, id, traitMatch) {
     } else {
       for (let itemId of player.itemsByType[i] || []) {
         let traits = GetTraits(itemId);
+        if (
+          traits.location !== undefined &&
+          traits.location !== player.location
+        ) {
+          continue;
+        }
         let matchesTraits = true;
         for (let traitReq of traitMatch) {
           if (traitReq.comparer === "=") {
@@ -39,6 +45,9 @@ function GetTotalItemCount(player, action, id, traitMatch) {
         }
         if (matchesTraits) {
           total += player.inventory[itemId] || 0;
+          if (cap > 0 && total >= cap) {
+            return total;
+          }
         }
       }
     }

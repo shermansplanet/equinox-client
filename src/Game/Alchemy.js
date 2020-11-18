@@ -353,6 +353,14 @@ export default class Alchemy extends React.Component {
           }
         }
       }
+      if (traits.inside !== undefined) {
+        subLabels.push(
+          "- in " +
+            this.state.itemDocs[
+              this.props.player.uniqueItemIds[traits.inside].split("&")[0]
+            ].name
+        );
+      }
       if (traits.heatedBy != undefined) {
         let heater = this.props.player.uniqueItemIds[traits.heatedBy];
         let heaterTraits = GetTraits(heater);

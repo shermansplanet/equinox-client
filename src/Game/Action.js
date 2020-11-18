@@ -197,15 +197,15 @@ export default class Action extends React.Component {
           let options = ids.map((id, i) => {
             let traits = GetTraits(id);
             let variety = traits.variety;
+            let label =
+              (variety ? GetName(this.state.items[variety], false) + " " : "") +
+              GetName(this.state.items[traits.id], true) +
+              (traits.decay == undefined
+                ? " (" + condensedInventory[ids[i]] + ")"
+                : " (" + ShortTimeString(traits.decay) + ")");
             return (
               <option key={i} value={id}>
-                {(variety
-                  ? GetName(this.state.items[variety], false) + " "
-                  : "") +
-                  GetName(this.state.items[traits.id], true) +
-                  " (" +
-                  condensedInventory[ids[i]] +
-                  ")"}
+                {label}
               </option>
             );
           });

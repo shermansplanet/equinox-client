@@ -59,42 +59,51 @@ export default class StatusPanel extends React.Component {
     let rendered = [];
     for (let id in player.inventory) {
       let traits = GetTraits(id);
-      if (traits.decay !== undefined) {
-        let item = this.state.itemDocs[traits.id];
-        if (item == undefined) {
+      let item = this.state.itemDocs[traits.id];
+      if (item == undefined) {
+        continue;
+      }
+      if (
+        item.skill_coeffs == undefined ||
+        Object.keys(item.skill_coeffs).length == 0
+      ) {
+        continue;
+      }
+      let coeffs = [];
+      for (let skillId in item.skill_coeffs) {
+        let skill = this.state.skillDocs[skillId];
+        if (skill == undefined) {
           continue;
         }
-        let coeffs = [];
-        for (let skillId in item.skill_coeffs || {}) {
-          let skill = this.state.skillDocs[skillId];
-          if (skill == undefined) {
-            continue;
-          }
-          coeffs.push(
-            <div
-              key={skillId}
-              style={{
-                fontSize: "10pt",
-                color: "#d53"
-              }}
-            >
-              {TitleCase(skill.name)} x{item.skill_coeffs[skillId]}
-            </div>
-          );
-        }
-        rendered.push({
-          div: (
-            <div key={id} style={{ marginTop: "10px" }}>
-              {item.name}
+        coeffs.push(
+          <div
+            key={skillId}
+            style={{
+              fontSize: "10pt",
+              color: "#d53"
+            }}
+          >
+            {TitleCase(skill.name)} x{item.skill_coeffs[skillId]}
+          </div>
+        );
+      }
+      if (coeffs.length == 0) {
+        continue;
+      }
+      rendered.push({
+        div: (
+          <div key={id} style={{ marginTop: "10px" }}>
+            {item.name}
+            {traits.decay !== undefined ? (
               <div className="itemInfo">
                 {ShortTimeString(traits.decay)} left
               </div>
-              {coeffs}
-            </div>
-          ),
-          rank: traits.decay
-        });
-      }
+            ) : null}
+            {coeffs}
+          </div>
+        ),
+        rank: traits.decay || 0
+      });
     }
     if (rendered.length == 0) {
       return null;

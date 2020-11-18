@@ -119,8 +119,30 @@ export default class Result extends React.Component {
     let condensedInventory = condenseItems(this.props.player.inventory);
 
     let itemDeltas = this.props.player.inventoryDelta;
+
+    let possibleIds = [];
+    if (resultData.items != undefined) {
+      possibleIds.push(
+        ...Object.keys(resultData.items).map(k => k.split("$")[0])
+      );
+    }
+    if (resultData.specificItems != undefined) {
+      possibleIds.push(
+        ...resultData.specificItems.map(k => k.item.split("$")[0])
+      );
+    }
+    if (actionData.costs != undefined) {
+      possibleIds.push(
+        ...Object.keys(actionData.costs).map(k => k.split("$")[0])
+      );
+    }
+
     for (var itemUpdate in itemDeltas) {
-      let item = this.state.items[itemUpdate.split("&")[0]];
+      let baseId = itemUpdate.split("&")[0];
+      if (!possibleIds.includes(baseId)) {
+        continue;
+      }
+      let item = this.state.items[baseId];
       let itemAmount = condensedInventory[itemUpdate] || 0;
       var delta = itemDeltas[itemUpdate];
       if (delta === undefined || delta === 0) {

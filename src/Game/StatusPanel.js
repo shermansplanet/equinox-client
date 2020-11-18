@@ -60,7 +60,7 @@ export default class StatusPanel extends React.Component {
     for (let id in player.inventory) {
       let traits = GetTraits(id);
       let item = this.state.itemDocs[traits.id];
-      if (item == undefined) {
+      if (item == undefined || item.hidden) {
         continue;
       }
       if (
@@ -86,9 +86,6 @@ export default class StatusPanel extends React.Component {
             {TitleCase(skill.name)} x{item.skill_coeffs[skillId]}
           </div>
         );
-      }
-      if (coeffs.length == 0) {
-        continue;
       }
       rendered.push({
         div: (

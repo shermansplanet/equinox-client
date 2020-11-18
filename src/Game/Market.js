@@ -160,7 +160,7 @@ export default class Market extends React.Component {
     return (
       <div>
         <div className="actionTitle">{currentMarket.name}</div>
-        <div>{currentMarket.text}</div>
+        <div style={{ marginBottom: "10px" }}>{currentMarket.text}</div>
         <div>
           Chimes to your name: <b>{toChimes(currentChimes)}</b>
         </div>

@@ -301,7 +301,7 @@ export default class Action extends React.Component {
 
       if (action.requirements != null) {
         for (var item in action.requirements) {
-          if (item.startsWith("checkpoint")) {
+          if (item.startsWith("checkpoint") || item == "month") {
             continue;
           }
           let count = 0;

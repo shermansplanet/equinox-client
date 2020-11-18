@@ -59,7 +59,7 @@ export default class YouPanel extends React.Component {
     for (var id in skills) {
       if (
         docs[id] != undefined &&
-        (skills[id] > 0 || baseSkills[id] !== undefined)
+        (skills[id] > 0 || this.props.player.baseSkills[id] !== undefined)
       ) {
         skillList.push(id);
       }
@@ -116,6 +116,16 @@ export default class YouPanel extends React.Component {
     return (
       <div>
         {this.makeCategoryTitle("Traits")}
+        <div
+          className="itemInfo"
+          style={{
+            color: "var(--light)",
+            textAlign: "center",
+            margin: "4px"
+          }}
+        >
+          Your base traits will bleed over into related traits.
+        </div>
         <div className="itemContainer">{renderedSkills}</div>
       </div>
     );
@@ -164,17 +174,10 @@ export default class YouPanel extends React.Component {
         let renderedTraits = [];
         for (let t in traits) {
           let val = traits[t];
-          if (t == "id" || t == "variety") {
-            continue;
-          }
-          if (t == "q" && val == 0) {
-            continue;
-          }
           if (t == "decay") {
             renderedTraits.push(
               <div className="itemInfo">{ShortTimeString(val)} left</div>
             );
-            continue;
           }
           if (t == "location") {
             if (val !== this.props.player.location) {
@@ -182,13 +185,7 @@ export default class YouPanel extends React.Component {
                 <div className="itemInfo">Somewhere else</div>
               );
             }
-            continue;
           }
-          renderedTraits.push(
-            <div className="itemInfo">
-              {TitleCase(t)}: {val}
-            </div>
-          );
         }
         items.push(
           <div key={item.id} className="itemPreview">

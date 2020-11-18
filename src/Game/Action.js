@@ -170,14 +170,12 @@ export default class Action extends React.Component {
             <span>
               {hasEnough ? "This will cost you " : "Unlock this with "}
               <b>
-                {(item == "chimes"
-                  ? toChimes(action.costs[item] / 100)
-                  : action.costs[item]) +
-                  " " +
-                  GetName(this.state.items[item], action.costs[item] != 1)}
+                {item == "chimes"
+                  ? toChimes(action.costs[item])
+                  : action.costs[item]}{" "}
+                {GetName(this.state.items[item], action.costs[item] != 1)}
               </b>{" "}
-              (you have{" "}
-              <b>{item == "chimes" ? toChimes(count / 100) : count}</b>).
+              (you have <b>{item == "chimes" ? toChimes(count) : count}</b>).
             </span>
           );
           if (!hasEnough) {

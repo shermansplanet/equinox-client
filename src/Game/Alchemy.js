@@ -143,6 +143,13 @@ export default class Alchemy extends React.Component {
       if (traits.variety !== undefined) {
         itemList.push(traits.variety);
       }
+      if (traits.inside !== undefined) {
+        itemList.push(player.uniqueItemIds[traits.inside]);
+      }
+      if (traits.uniqueId !== undefined) {
+        let contains = player.containers[traits.uniqueId] || {};
+        itemList.push(...Object.keys(contains));
+      }
     }
     var actionDocs = await GetDocuments(
       "actions",
@@ -278,7 +285,23 @@ export default class Alchemy extends React.Component {
         }
       }
     }
+    let parentMapping = {};
+    for (let i of [...itemsToRender]) {
+      let traits = GetTraits(i);
+      if (traits.uniqueId !== undefined) {
+        let contains = this.props.player.containers[traits.uniqueId] || {};
+        for (let contained in contains) {
+          if (!itemsToRender.includes(contained)) {
+            parentMapping[contained] = i;
+            itemsToRender.push(contained);
+          }
+        }
+      }
+    }
     let fitnessFunc = a => {
+      if (parentMapping[a] !== undefined) {
+        return fitnessFunc(parentMapping[a]) - 0.01;
+      }
       let combos = selfOptions[a].length;
       if (otherOptions[a] == undefined) {
         return combos;
@@ -344,7 +367,7 @@ export default class Alchemy extends React.Component {
             ? "lukewarm"
             : temp < 6
             ? "warm"
-            : temp < 10
+            : temp < 10 || item.traits.element != "water"
             ? "hot"
             : "boiling";
         subLabels.push("- " + desc);

@@ -1,8 +1,8 @@
 import React from "react";
 import { GetDocuments } from "../Utils/GameDataCache";
-import { TitleCase, GetName } from "../Utils/StyleUtils";
+import { TitleCase } from "../Utils/StyleUtils";
 import { ShortTimeString } from "../Utils/TimeUtils";
-import { condenseItems, GetTraits } from "../Utils/ServerCloneUtils";
+import { GetTraits } from "../Utils/ServerCloneUtils";
 
 export default class StatusPanel extends React.Component {
   constructor(props) {
@@ -52,6 +52,69 @@ export default class StatusPanel extends React.Component {
   }
 
   render() {
-    return null;
+    if (this.state.itemDocs == null || this.state.skillDocs == null) {
+      return null;
+    }
+    let player = this.props.player;
+    let rendered = [];
+    for (let id in player.inventory) {
+      let traits = GetTraits(id);
+      if (traits.decay !== undefined) {
+        let item = this.state.itemDocs[traits.id];
+        if (item == undefined) {
+          continue;
+        }
+        let coeffs = [];
+        for (let skillId in item.skill_coeffs || {}) {
+          let skill = this.state.skillDocs[skillId];
+          if (skill == undefined) {
+            continue;
+          }
+          coeffs.push(
+            <div
+              key={skillId}
+              style={{
+                fontSize: "10pt",
+                color: "#d53"
+              }}
+            >
+              {TitleCase(skill.name)} x{item.skill_coeffs[skillId]}
+            </div>
+          );
+        }
+        rendered.push({
+          div: (
+            <div key={id} style={{ marginTop: "10px" }}>
+              {item.name}
+              <div className="itemInfo">
+                {ShortTimeString(traits.decay)} left
+              </div>
+              {coeffs}
+            </div>
+          ),
+          rank: traits.decay
+        });
+      }
+    }
+    if (rendered.length == 0) {
+      return null;
+    }
+    rendered.sort((a, b) => a.rank - b.rank);
+    return (
+      <div>
+        <div className="actionTitle" style={{ color: "var(--light)" }}>
+          Current Status
+        </div>
+        <div className="itemInfo">
+          Trait modifiers will be applied to all dependent traits as well. Click
+          on a trait in the{" "}
+          <i>
+            <b>you</b>
+          </i>{" "}
+          tab for more details.
+        </div>
+        {rendered.map(r => r.div)}
+      </div>
+    );
   }
 }

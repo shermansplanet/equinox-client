@@ -69,6 +69,7 @@ export default class Game extends React.Component {
           doc.data().args && doc.data().args.loadAlchemy
             ? "alchemy"
             : "actions";
+        this.switchingToTab = newState.currentTab;
         newState.loading = newState.currentTab != this.state.currentTab;
         this.setState(newState);
       });
@@ -86,6 +87,7 @@ export default class Game extends React.Component {
   };
 
   setTab = tab => {
+    this.switchingToTab = tab;
     if (tab == "actions") {
       var uid = app.auth().currentUser.uid;
       app
@@ -209,12 +211,14 @@ export default class Game extends React.Component {
             <div style={{ height: "0px", opacity: 0 }}>
               ----------------------------------------------------------------------------------------------------
             </div>
-            {this.state.loading ? (
+            {this.state.loading ||
+            this.state.currentTab != this.switchingToTab ? (
               <div className="centered">
                 <Loader />
               </div>
             ) : this.state.currentTab == "alchemy" ? (
               <Alchemy
+                tab={this.switchingToTab}
                 player={player}
                 location={this.state.location}
                 action={this.state.action}

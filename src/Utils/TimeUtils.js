@@ -136,6 +136,9 @@ export function TimeString(minutes) {
 }
 
 export function ShortTimeString(minutes) {
+  if (minutes == 0) {
+    return "Mere moments";
+  }
   var h = Math.floor(minutes / 60);
   var m = minutes % 60;
   var s = [];

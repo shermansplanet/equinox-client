@@ -81,8 +81,9 @@ export function GetCurrentHour() {
 }
 
 export function IsDay() {
-  var h = GetCurrentHour();
   var currentTime = new Date().getTime();
+  var dayStart = Math.floor(currentTime / MS_PER_GAME_DAY) * MS_PER_GAME_DAY;
+  var h = (currentTime - dayStart) / MS_PER_GAME_HOUR;
   var m = (currentTime / MS_PER_GAME_MONTH + 1) % 8;
   var daylightMod = Math.abs(m - 4) - 2;
   return h >= 6 + daylightMod && h < 18 - daylightMod;

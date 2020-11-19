@@ -106,6 +106,7 @@ export default class Game extends React.Component {
   };
 
   render() {
+    return <img src="cinder_gourds.jpg" />;
     var player = this.state.userData;
     if (this.state.newUser) {
       return <NewUser />;

@@ -81,4 +81,5 @@
   width: 450px;
   transform: translateY(-100px);
   z-index: -10;
+  opacity: 0.5;
 }

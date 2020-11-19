@@ -19,6 +19,13 @@
   --dark: #2f1403;
   --highlight: #7f1403;
   padding: 0px;
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+:root::-webkit-scrollbar {
+  display: none;
 }
 
 body {

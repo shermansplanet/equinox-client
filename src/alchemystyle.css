@@ -1,6 +1,7 @@
 .alchemyActionList {
   display: flex;
   flex-direction: column;
+  align-items: center;
 }
 
 .draggableItem {
@@ -73,4 +74,11 @@
   padding: 2px 3px;
   font-size: 8pt;
   font-weight: bold;
+}
+
+.croissant {
+  position: fixed;
+  width: 450px;
+  transform: translateY(-100px);
+  z-index: -10;
 }

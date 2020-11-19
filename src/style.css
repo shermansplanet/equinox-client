@@ -153,6 +153,15 @@ button:focus {
   margin-right: 8px;
 }
 
+.locationImage {
+  max-width: 100%;
+  max-height: 400px;
+  display: block;
+  margin: 10px auto;
+  border: 2px solid var(--light);
+  box-shadow: 0 10px 20px 0 #0008;
+}
+
 .errorText {
   color: var(--highlight);
   font-size: 10pt;

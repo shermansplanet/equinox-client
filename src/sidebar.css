@@ -43,12 +43,12 @@
 .clockCenter {
   width: 0px;
   height: 0px;
-  transform: translate(96.8px, -451.7px);
+  transform: translate(96.8px, -448.6px);
 }
 .bigHand {
   position: absolute;
   width: 12px;
-  transform: translate(-49%, -89%);
+  transform: translate(-51%, -92.5%);
 }
 
 .monthBackground {
@@ -80,7 +80,7 @@
 .smallHand {
   position: absolute;
   width: 22px;
-  transform: translate(-49%, -83%);
+  transform: translate(-49%, -88%);
 }
 
 .smallerHand {
@@ -101,7 +101,7 @@
 .clockTopCenter {
   width: 0px;
   height: 0px;
-  transform: translate(96px, -559.5px);
+  transform: translate(96.2px, -558px);
 }
 
 .itemInfoTop {

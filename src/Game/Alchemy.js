@@ -289,7 +289,9 @@ export default class Alchemy extends React.Component {
     for (let i of [...itemsToRender]) {
       let traits = GetTraits(i);
       if (traits.uniqueId !== undefined) {
-        let contains = this.props.player.containers[traits.uniqueId] || {};
+        let contains = condenseItems(
+          this.props.player.containers[traits.uniqueId] || {}
+        );
         for (let contained in contains) {
           if (!itemsToRender.includes(contained)) {
             parentMapping[contained] = i;
@@ -298,6 +300,7 @@ export default class Alchemy extends React.Component {
         }
       }
     }
+    console.log(itemsToRender);
     let fitnessFunc = a => {
       if (parentMapping[a] !== undefined) {
         return fitnessFunc(parentMapping[a]) - 0.01;
@@ -463,6 +466,7 @@ export default class Alchemy extends React.Component {
         <div className="lightDivider" style={{ marginBottom: "8px" }} />
         {renderedItems}
         <div className="alchemyActionList">
+          <img src="https://i.imgur.com/xBrWxCm.png" className="croissant" />
           {(this.state.actions || []).map((actionId, i) => (
             <Action
               key={i + "_" + actionId}

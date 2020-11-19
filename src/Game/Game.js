@@ -136,6 +136,9 @@ export default class Game extends React.Component {
           <div className="lightDivider" />
           <div className="locationHeading">
             <div className="actionTitle">{this.state.location.name}</div>
+            {this.state.location.image == undefined ? null : (
+              <img className="locationImage" src={this.state.location.image} />
+            )}
             {this.state.location.text}
             {this.state.location.name === "Course Registration" ? (
               <div>

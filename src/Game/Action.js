@@ -150,7 +150,7 @@ export default class Action extends React.Component {
             <b>
               {Math.min(
                 100,
-                Math.round((playerSkill / action.check.difficulty) * 100)
+                Math.round(((playerSkill + 2) / action.check.difficulty) * 100)
               )}
               %
             </b>{" "}

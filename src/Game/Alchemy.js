@@ -5,6 +5,7 @@ import {
   GetTraits,
   canTakeAction
 } from "../Utils/ServerCloneUtils";
+import { ShortTimeString } from "../Utils/TimeUtils";
 import { TitleCase, GetName } from "../Utils/StyleUtils";
 import "firebase/firestore";
 import Draggable from "react-draggable";
@@ -193,7 +194,8 @@ export default class Alchemy extends React.Component {
       selfOptions[id1] = [];
       for (let actionId in actionDocs) {
         let action = actionDocs[actionId];
-        if (action.flags.multiItem) {
+        console.log(action);
+        if (action.flags && action.flags.multiItem) {
           continue;
         }
         let inventory = {};
@@ -234,7 +236,7 @@ export default class Alchemy extends React.Component {
           if (!canTakeAction(fakePlayer, action)) {
             continue;
           }
-          if (action.flags.multiItem) {
+          if (action.flags && action.flags.multiItem) {
             let subActions = Object.keys(action.requirements).map(req => {
               let action1 = Object.assign({}, action);
               action1.requirements = { [req]: action.requirements[req] };
@@ -363,6 +365,9 @@ export default class Alchemy extends React.Component {
               this.props.player.uniqueItemIds[traits.inside].split("&")[0]
             ].name
         );
+      }
+      if (traits.decay !== undefined) {
+        subLabels.push(`- ${ShortTimeString(traits.decay)} left`);
       }
       if (traits.heatedBy != undefined) {
         let heater = this.props.player.uniqueItemIds[traits.heatedBy];

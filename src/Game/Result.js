@@ -139,9 +139,6 @@ export default class Result extends React.Component {
 
     for (var itemUpdate in itemDeltas) {
       let baseId = itemUpdate.split("&")[0];
-      if (!possibleIds.includes(baseId)) {
-        continue;
-      }
       let item = this.state.items[baseId];
       let itemAmount = condensedInventory[itemUpdate] || 0;
       var delta = itemDeltas[itemUpdate];

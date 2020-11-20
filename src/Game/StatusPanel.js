@@ -13,13 +13,7 @@ export default class StatusPanel extends React.Component {
     };
   }
 
-  updateSkills = async () => {
-    var skillList = Object.keys(this.props.player.skills);
-    var skillDocs = await GetDocuments("skills", skillList);
-    this.setState({ skillDocs });
-  };
-
-  updateItems = async () => {
+  updateDocs = async () => {
     var itemList = Object.keys(this.props.player.inventory);
     for (let i of itemList) {
       let variety = GetTraits(i).variety;
@@ -28,26 +22,26 @@ export default class StatusPanel extends React.Component {
       }
     }
     var itemDocs = await GetDocuments("items", itemList);
-    this.setState({ itemDocs });
+    let skillList = [];
+    for (let id in itemDocs) {
+      skillList.push(...Object.keys(itemDocs[id].skill_coeffs || {}));
+    }
+    var skillDocs = await GetDocuments("skills", skillList);
+    this.setState({ itemDocs, skillDocs });
   };
 
   componentDidMount() {
-    this.updateSkills();
-    this.updateItems();
+    this.updateDocs();
   }
 
   componentDidUpdate(prevProps) {
     if (
       JSON.stringify(this.props.player.skills) !==
-      JSON.stringify(prevProps.player.skills)
-    ) {
-      this.updateSkills();
-    }
-    if (
+        JSON.stringify(prevProps.player.skills) ||
       JSON.stringify(Object.keys(this.props.player.inventory)) !==
-      JSON.stringify(Object.keys(prevProps.player.inventory))
+        JSON.stringify(Object.keys(prevProps.player.inventory))
     ) {
-      this.updateItems();
+      this.updateDocs();
     }
   }
 

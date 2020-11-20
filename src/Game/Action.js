@@ -112,14 +112,21 @@ export default class Action extends React.Component {
   takeAction = action_id => {
     var uid = this.auth.currentUser.uid;
     let args = this.state.args;
-    args.itemVarieties = JSON.stringify(this.state.varieties);
     if (this.props.itemMap !== undefined) {
       let itemMap = {};
+      let itemVars = {};
       for (let i in this.props.itemMap) {
-        itemMap[i] = this.props.itemMap[i].id;
+        let itemId = this.props.itemMap[i].id;
+        itemMap[i] = itemId;
+        itemVars[itemId.split("&")[0]] = [[itemId, 1]];
       }
+      args.itemVarieties = JSON.stringify(itemVars);
       args.itemMap = itemMap;
-      args.loadAlchemy = true;
+      args.loadAlchemy =
+        this.state.data.flags != undefined &&
+        this.state.data.flags.noResultScreen;
+    } else {
+      args.itemVarieties = JSON.stringify(this.state.varieties);
     }
     this.db
       .collection("gameplay")

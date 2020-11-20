@@ -52,7 +52,8 @@ export default class Game extends React.Component {
             location,
             backLocationName: backLoc.name,
             clearedMessages: [],
-            showSidebars: this.state.showSidebars && !this.backToActions
+            showSidebars: this.state.showSidebars && !this.backToActions,
+            loading: false
           });
           this.backToActions = false;
         } else {
@@ -70,6 +71,7 @@ export default class Game extends React.Component {
             ? "alchemy"
             : "actions";
         this.switchingToTab = newState.currentTab;
+        console.log(doc.data().action);
         newState.loading = newState.currentTab != this.state.currentTab;
         this.setState(newState);
       });
@@ -106,6 +108,7 @@ export default class Game extends React.Component {
   };
 
   render() {
+    console.log(this.switchingToTab, this.state.currentTab, this.state.loading);
     var player = this.state.userData;
     if (this.state.newUser) {
       return <NewUser />;
@@ -122,7 +125,8 @@ export default class Game extends React.Component {
       );
     }
     var content = null;
-    if (player.result >= 0 && this.state.action != "") {
+    let showResult = player.result >= 0 && this.state.action != "";
+    if (showResult) {
       content = <Result player={player} action={this.state.action} />;
     } else {
       content = (

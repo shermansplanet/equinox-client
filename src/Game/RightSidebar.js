@@ -156,12 +156,9 @@ export default class RightSidebar extends React.Component {
                     .firestore()
                     .collection("gameplay")
                     .doc(uid)
-                    .set(
-                      {
-                        action: "newcard"
-                      },
-                      { merge: true }
-                    );
+                    .set({
+                      action: "newcard"
+                    });
                 }}
               >
                 {this.props.action == "newcard" ? (

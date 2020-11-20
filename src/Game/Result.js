@@ -3,7 +3,7 @@ import app from "firebase/app";
 import "firebase/firestore";
 import "firebase/auth";
 import { GetDocument, GetDocuments, GetPlace } from "../Utils/GameDataCache";
-import { GetName, AddLineBreaks } from "../Utils/StyleUtils";
+import { GetName, AddLineBreaks, toChimes } from "../Utils/StyleUtils";
 import { condenseItems, GetTraits } from "../Utils/ServerCloneUtils";
 
 export default class Result extends React.Component {
@@ -147,15 +147,22 @@ export default class Result extends React.Component {
       }
       let variety = GetTraits(itemUpdate).variety;
       let deltaLabel = GetName(item, Math.abs(delta) != 1);
-      let resultLabel = GetName(item, itemAmount != 1);
+      let deltaString =
+        baseId == "chimes"
+          ? toChimes(Math.abs(delta))
+          : Math.abs(delta).toString();
+
+      itemAmount =
+        baseId == "chimes"
+          ? toChimes(Math.abs(itemAmount))
+          : Math.abs(itemAmount).toString();
       if (variety !== undefined) {
         deltaLabel = this.state.items[variety].name + " " + deltaLabel;
-        resultLabel = this.state.items[variety].name + " " + resultLabel;
       }
       updates.push(
         <span>
-          You {delta < 0 ? "lost " + -delta : "got " + delta}{" "}
-          <b>{deltaLabel}</b> (new total {itemAmount}).
+          You {delta < 0 ? "lost " : "got "} {deltaString} <b>{deltaLabel}</b>{" "}
+          (new total {itemAmount}).
         </span>
       );
     }

@@ -1,6 +1,6 @@
 import React from "react";
 import { GetDocuments } from "../Utils/GameDataCache";
-import { TitleCase, GetName } from "../Utils/StyleUtils";
+import { TitleCase, GetName, toChimes } from "../Utils/StyleUtils";
 import { ShortTimeString } from "../Utils/TimeUtils";
 import { condenseItems, GetTraits } from "../Utils/ServerCloneUtils";
 
@@ -189,7 +189,9 @@ export default class YouPanel extends React.Component {
         }
         items.push(
           <div key={item.id} className="itemPreview">
-            <div className="itemNumber">{item.count}</div>
+            <div className="itemNumber">
+              {item.id == "chimes" ? toChimes(item.count) : item.count}
+            </div>
             <div>
               <b>{TitleCase(item.label)}</b>
               {renderedTraits}

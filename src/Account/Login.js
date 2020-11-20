@@ -59,7 +59,22 @@ export default class Main extends React.Component {
 
   render() {
     return (
-      <div className="centered">
+      <div className="centered" style={{ color: "var(--light)" }}>
+        <div className="actionTitle">Welcome to Summerfall</div>
+        <div
+          style={{
+            maxWidth: "400px",
+            marginBottom: "20px",
+            textAlign: "center",
+            fontStyle: "italic"
+          }}
+        >
+          Where every summer brings an unending and supernaturally verdant
+          wilderness, and every winter brings a continent-spanning cityscape
+          grown by magic. Where alchemy powers trains and witches run the local
+          cinema. Where cinder-gods and lye-beasts and wisps wander the city
+          streets.
+        </div>
         <form
           className="login"
           onSubmit={e => {
@@ -71,7 +86,6 @@ export default class Main extends React.Component {
               : this.signIn)();
           }}
         >
-          <h2>Welcome</h2>
           <input
             placeholder="email"
             value={this.state.email}

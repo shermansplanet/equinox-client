@@ -57,7 +57,11 @@ export default class Main extends React.Component {
       );
     }
     if (this.state.authUser == null) {
-      return <Login />;
+      return (
+        <div>
+          <Login />
+        </div>
+      );
     }
     return <Game />;
   }

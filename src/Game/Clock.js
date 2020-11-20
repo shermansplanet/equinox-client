@@ -54,6 +54,8 @@ export default class Clock extends React.Component {
     var m = (currentTime / MS_PER_GAME_MONTH + 1) % 8;
     let daylightMod = Math.abs(m - 4) - 2;
     let dayLength = 0.5 + daylightMod / 12;
+    let sleeplessRot =
+      this.state.minutes - 1440 + (this.props.player.timeSinceLastSleep % 1440);
     return (
       <div style={{ width: "180px", margin: "8px" }}>
         <svg className="progress-ring" width="140" height="140">
@@ -112,6 +114,16 @@ export default class Clock extends React.Component {
           <div className="pendulumHolder">
             <div className="pendulum">{pendulum_svg}</div>
           </div>
+          {sleeplessRot < 0 ? null : (
+            <div
+              className="clockTransition"
+              style={{
+                transform: "rotate(" + (sleeplessRot * 360) / 1440 + "deg)"
+              }}
+            >
+              <div className="sleeplessTick">🝰</div>
+            </div>
+          )}
           <div
             className="clockTransition"
             style={{

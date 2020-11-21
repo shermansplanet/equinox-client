@@ -8,6 +8,7 @@ export const MS_PER_GAME_MINUTE = (1000 * 60) / SPEED_COEFF;
 const MS_PER_GAME_HOUR = MS_PER_GAME_MINUTE * 60;
 const MS_PER_GAME_DAY = MS_PER_GAME_HOUR * 24;
 export const MS_PER_GAME_MONTH = MS_PER_GAME_DAY * 45;
+export const MS_PER_GAME_YEAR = MS_PER_GAME_MONTH * 8;
 
 export const monthNames = [
   "Scrawled Enigma",
@@ -22,9 +23,13 @@ export const monthNames = [
 
 var callbacks = {};
 
+export function CurrentTime() {
+  let currentTime = new Date().getTime();
+  return currentTime - currentMinutes * MS_PER_GAME_MINUTE;
+}
+
 export function GetCurrentMonth() {
-  var currentTime = new Date().getTime();
-  return Math.floor(currentTime / MS_PER_GAME_MONTH) % 8;
+  return Math.floor(CurrentTime() / MS_PER_GAME_MONTH) % 8;
 }
 
 export function GetCurrentMonthName() {
@@ -43,7 +48,7 @@ export function GetCurrentDate() {
 }
 
 export function GetTimeUntilNextSemester() {
-  var currentTime = new Date().getTime();
+  var currentTime = CurrentTime();
   var semesterStart =
     Math.ceil(currentTime / (MS_PER_GAME_MONTH * 2)) * (MS_PER_GAME_MONTH * 2);
   var dt = (semesterStart - currentTime) / SPEED_COEFF;
@@ -60,28 +65,28 @@ export function GetTimeUntilNextSemester() {
 }
 
 export function GetCurrentDay() {
-  var currentTime = new Date().getTime();
+  var currentTime = CurrentTime();
   var monthStart =
     Math.floor(currentTime / MS_PER_GAME_MONTH) * MS_PER_GAME_MONTH;
   return Math.ceil((currentTime - monthStart) / MS_PER_GAME_DAY);
 }
 
-export function GetMonthPercent() {
-  var currentTime = new Date().getTime();
-  var monthStart =
-    Math.floor(currentTime / MS_PER_GAME_MONTH) * MS_PER_GAME_MONTH;
-  return (currentTime - monthStart) / MS_PER_GAME_MONTH;
+export function GetYearPercent() {
+  var currentTime = CurrentTime();
+  var yearStart =
+    Math.floor(currentTime / MS_PER_GAME_MONTH) * MS_PER_GAME_YEAR;
+  return (currentTime - yearStart) / MS_PER_GAME_YEAR;
 }
 
 export function GetCurrentHour() {
-  var currentTime = new Date().getTime();
+  var currentTime = CurrentTime();
 
   var dayStart = Math.floor(currentTime / MS_PER_GAME_DAY) * MS_PER_GAME_DAY;
   return Math.floor((currentTime - dayStart) / MS_PER_GAME_HOUR);
 }
 
 export function IsDay() {
-  var currentTime = new Date().getTime();
+  var currentTime = CurrentTime();
   var dayStart = Math.floor(currentTime / MS_PER_GAME_DAY) * MS_PER_GAME_DAY;
   var h = (currentTime - dayStart) / MS_PER_GAME_HOUR;
   var m = (currentTime / MS_PER_GAME_MONTH + 1) % 8;
@@ -90,14 +95,20 @@ export function IsDay() {
 }
 
 export function GetDayPercent() {
-  var currentTime = new Date().getTime();
+  var currentTime = CurrentTime();
 
   var dayStart = Math.floor(currentTime / MS_PER_GAME_DAY) * MS_PER_GAME_DAY;
   return (currentTime - dayStart) / MS_PER_GAME_DAY;
 }
 
+export function GetHourPercent() {
+  var currentTime = CurrentTime();
+  var dayStart = Math.floor(currentTime / MS_PER_GAME_DAY) * MS_PER_GAME_DAY;
+  return (currentTime - dayStart) / MS_PER_GAME_HOUR;
+}
+
 export function GetCurrentTime() {
-  var currentTime = new Date().getTime();
+  var currentTime = CurrentTime();
 
   var hour = GetCurrentHour();
   var pm = hour >= 12;

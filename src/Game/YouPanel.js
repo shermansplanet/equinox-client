@@ -72,11 +72,23 @@ export default class YouPanel extends React.Component {
       var skill = docs[id];
       const ci = i;
       const selected = this.state.selectedSkill == i;
-      let base = Math.floor(this.props.player.baseSkills[id] || 0);
-      let diffused = this.props.player.diffusedSkills[id] || 0;
+      let base = this.props.player.baseSkills[id] || 0;
+      base = Math.round(base * 100) / 100;
+      let bleedMap = this.props.player.bleedMap[id] || {};
       let skillValue = this.props.player.skills[id];
-      let bleed = diffused - base;
-      let status = skillValue - diffused;
+      let hasBonus = false;
+      let hasPenalty = false;
+      let bleedLabels = [];
+      for (let bleedName in bleedMap) {
+        let bonus = bleedMap[bleedName];
+        hasBonus = hasBonus || bonus > 0;
+        hasPenalty = hasPenalty || bonus < 0;
+        bleedLabels.push(
+          <div className={bonus > 0 ? "skillBonus" : "skillPenalty"}>
+            <b>{bonus > 0 ? "+" + bonus : bonus}</b> from <b>{bleedName}</b>
+          </div>
+        );
+      }
       return (
         <button
           className="itemPreviewButton"
@@ -86,7 +98,20 @@ export default class YouPanel extends React.Component {
             this.setState({ selectedSkill: ci });
           }}
         >
-          <div className="itemNumber">{skillValue}</div>
+          <div
+            className="itemNumber"
+            style={{
+              backgroundColor: hasBonus
+                ? hasPenalty
+                  ? "#606"
+                  : "#048"
+                : hasPenalty
+                ? "#800"
+                : "var(--dark)"
+            }}
+          >
+            {skillValue}
+          </div>
           <div>
             <div className="itemInfoTop">{skill.label}:</div>
             <b>{skill.name}</b>
@@ -94,20 +119,7 @@ export default class YouPanel extends React.Component {
           {selected ? (
             <div className="itemPreviewExtension">
               Base: {base}
-              <div
-                className={
-                  bleed == 0 ? "" : bleed > 0 ? "skillBonus" : "skillPenalty"
-                }
-              >
-                Bleed: {(bleed >= 0 ? "+" : "") + bleed}
-              </div>
-              <div
-                className={
-                  status == 0 ? "" : status > 0 ? "skillBonus" : "skillPenalty"
-                }
-              >
-                Status: {(status >= 0 ? "+" : "") + status}
-              </div>
+              {bleedLabels}
             </div>
           ) : null}
         </button>

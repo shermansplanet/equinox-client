@@ -118,7 +118,7 @@ export default class Action extends React.Component {
       for (let i in this.props.itemMap) {
         let itemId = this.props.itemMap[i].id;
         itemMap[i] = itemId;
-        itemVars[itemId.split("&")[0]] = [[itemId, 1]];
+        itemVars[this.props.itemMap[i].baseType] = [[itemId, 1]];
       }
       args.itemVarieties = JSON.stringify(itemVars);
       args.itemMap = itemMap;

@@ -94,7 +94,8 @@ export default class Alchemy extends React.Component {
               }
               itemMapChoices[itemName].push({
                 id: this.state.currentlyDragging,
-                name: TitleCase(this.state.itemDocs[primaryBaseId].name)
+                name: TitleCase(this.state.itemDocs[primaryBaseId].name),
+                baseType: itemId
               });
             } else if (secondary && i == secondaryBaseId) {
               if (itemMapChoices[itemName] == undefined) {
@@ -103,7 +104,8 @@ export default class Alchemy extends React.Component {
               }
               itemMapChoices[itemName].push({
                 id: secondary,
-                name: TitleCase(this.state.itemDocs[secondaryBaseId].name)
+                name: TitleCase(this.state.itemDocs[secondaryBaseId].name),
+                baseType: itemId
               });
             }
           }
@@ -174,7 +176,10 @@ export default class Alchemy extends React.Component {
     this.updateDocs();
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps, prevState) {
+    if (this.state.currentlyDragging != prevState.currentlyDragging) {
+      this.onMove(0, 0);
+    }
     if (
       JSON.stringify(Object.keys(this.props.player.inventory)) !==
         JSON.stringify(Object.keys(prevProps.player.inventory)) ||
@@ -194,7 +199,6 @@ export default class Alchemy extends React.Component {
       selfOptions[id1] = [];
       for (let actionId in actionDocs) {
         let action = actionDocs[actionId];
-        console.log(action);
         if (action.flags && action.flags.multiItem) {
           continue;
         }
@@ -302,7 +306,6 @@ export default class Alchemy extends React.Component {
         }
       }
     }
-    console.log(itemsToRender);
     let fitnessFunc = a => {
       if (parentMapping[a] !== undefined) {
         return fitnessFunc(parentMapping[a]) - 0.01;
@@ -465,8 +468,7 @@ export default class Alchemy extends React.Component {
           }}
         >
           The alchemy system is in its very early stages, and is not
-          feature-complete. Any actions that require the alchemy system will say
-          so explicitly.
+          feature-complete.
         </div>
         <div className="lightDivider" style={{ marginBottom: "8px" }} />
         {renderedItems}

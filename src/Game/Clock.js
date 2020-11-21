@@ -16,7 +16,8 @@ import {
   GetCurrentDate,
   GetCurrentMonth,
   GetDayPercent,
-  GetMonthPercent,
+  GetHourPercent,
+  GetYearPercent,
   MS_PER_GAME_MONTH
 } from "../Utils/TimeUtils";
 import { monthColors } from "../Utils/StyleUtils";
@@ -48,6 +49,31 @@ export default class Clock extends React.Component {
   componentWillUnmount() {
     Unsubscribe("clock");
   }
+
+  renderSeasonDots = () => {
+    return monthColors.map((color, i) => (
+      <svg
+        key={i}
+        style={{
+          position: "absolute",
+          transform: "translate(-29px, -29px) rotate(-90deg)"
+        }}
+        width="60"
+        height="60"
+      >
+        <circle
+          strokeDasharray="15 125"
+          strokeDashoffset={-i * 17.3}
+          stroke={color}
+          strokeWidth="4"
+          fill="transparent"
+          r="22"
+          cx="30"
+          cy="30"
+        />
+      </svg>
+    ));
+  };
 
   render() {
     var currentTime = new Date().getTime();
@@ -117,12 +143,6 @@ export default class Clock extends React.Component {
             />
           )}
         </svg>
-        <div
-          className="monthBackground"
-          style={{
-            backgroundColor: monthColors[GetCurrentMonth()]
-          }}
-        />
         {clock_svg}
         <div className="clockCenter">
           <div className="pendulumHolder">
@@ -131,7 +151,7 @@ export default class Clock extends React.Component {
           <div
             className="clockTransition"
             style={{
-              transform: "rotate(" + (this.state.minutes * 360) / 1440 + "deg)"
+              transform: "rotate(" + GetHourPercent() * 360 + "deg)"
             }}
           >
             <div className="bigHand">{bighand_svg}</div>
@@ -146,10 +166,11 @@ export default class Clock extends React.Component {
           </div>
         </div>
         <div className="clockTopCenter">
+          {this.renderSeasonDots()}
           <div
             className="clockTransition"
             style={{
-              transform: "rotate(" + GetMonthPercent() * 360 + "deg)"
+              transform: "rotate(" + GetYearPercent() * 360 + "deg)"
             }}
           >
             <div className="smallerHand">{smallhand_svg}</div>

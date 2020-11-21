@@ -24,16 +24,6 @@
   transition-duration: 0.5s;
 }
 
-.sleeplessTick {
-  position: absolute;
-  color: var(--light);
-  transform: translate(-7px, -85px);
-  border-radius: 10px 10px 0px 0px;
-  padding: 0px 4px;
-  font-size: 10pt;
-  background-color: var(--dark);
-}
-
 .progress-ring {
   position: absolute;
   transform: translate(27px, 172px) rotate(-90deg);

@@ -102,6 +102,20 @@ export default class Clock extends React.Component {
             cx="70"
             cy="70"
           />
+          {sleeplessRot < 0 ? null : (
+            <circle
+              strokeDasharray="390 390"
+              strokeDashoffset={390 - (sleeplessRot * 390) / 1440}
+              className="progress-ring__circle clockTransition"
+              stroke="var(--highlight)"
+              opacity="0.6"
+              strokeWidth="4"
+              fill="transparent"
+              r="62"
+              cx="70"
+              cy="70"
+            />
+          )}
         </svg>
         <div
           className="monthBackground"
@@ -114,16 +128,6 @@ export default class Clock extends React.Component {
           <div className="pendulumHolder">
             <div className="pendulum">{pendulum_svg}</div>
           </div>
-          {sleeplessRot < 0 ? null : (
-            <div
-              className="clockTransition"
-              style={{
-                transform: "rotate(" + (sleeplessRot * 360) / 1440 + "deg)"
-              }}
-            >
-              <div className="sleeplessTick">🝰</div>
-            </div>
-          )}
           <div
             className="clockTransition"
             style={{

@@ -66,10 +66,16 @@ export default class Market extends React.Component {
       let valueId =
         traits.variety == undefined ? id : id + "$" + traits.variety;
       itemCounts[i] = 1;
+      console.log(item, traits);
       let title =
-        traits.variety == undefined || item.baseVarietyType == traits.variey
+        traits.variety == undefined || item.varietyType == traits.variey
           ? item.name
           : itemDocs[traits.variety].name + " " + item.name;
+      console.log(item.varietyType == traits.variey);
+      if (traits.variety == undefined || item.varietyType == traits.variey) {
+      } else {
+        console.log(itemDocs[traits.variety].name + " " + item.name);
+      }
       sellableItems.push({
         value: getValue(valueId, itemDocs),
         title,
@@ -109,6 +115,7 @@ export default class Market extends React.Component {
       const baseValue = i.value;
       let soldAmount = this.state.itemCounts[id];
       let value = soldAmount * baseValue * (selling ? 0.5 : 1);
+      console.log(id);
       renderedItems.push(
         <tr key={id}>
           <td>

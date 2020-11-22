@@ -56,7 +56,7 @@ export default class Clock extends React.Component {
         key={i}
         style={{
           position: "absolute",
-          transform: "translate(-29px, -29px) rotate(-90deg)"
+          transform: "translate(-29.5px, -29.5px) rotate(-90deg)"
         }}
         width="60"
         height="60"
@@ -181,10 +181,15 @@ export default class Clock extends React.Component {
             {GetCurrentDate()}
           </b>
           <div className="lightDivider" style={{ margin: "14px 0px" }} />
-          You have <b>
-            {TimeString(this.state.minutes).replace(",", " and")}
-          </b>{" "}
-          to spend.
+          {this.state.minutes <= 0 ? (
+            "Wait a bit..."
+          ) : (
+            <div>
+              You have{" "}
+              <b>{TimeString(this.state.minutes).replace(",", " and")}</b> to
+              spend.
+            </div>
+          )}
         </div>
       </div>
     );

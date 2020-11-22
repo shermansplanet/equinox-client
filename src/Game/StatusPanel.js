@@ -63,6 +63,7 @@ export default class StatusPanel extends React.Component {
       ) {
         continue;
       }
+      let count = player.inventory[id];
       let coeffs = [];
       for (let skillId in item.skill_coeffs) {
         let skill = this.state.skillDocs[skillId];
@@ -77,14 +78,15 @@ export default class StatusPanel extends React.Component {
               color: "#d53"
             }}
           >
-            {TitleCase(skill.name)} x{item.skill_coeffs[skillId]}
+            {TitleCase(skill.name)} x
+            {Math.pow(item.skill_coeffs[skillId], count)}
           </div>
         );
       }
       rendered.push({
         div: (
           <div key={id} style={{ marginTop: "10px" }}>
-            {item.name}
+            {item.name} {count > 1 ? "x" + count : ""}
             {traits.decay !== undefined ? (
               <div className="itemInfo">
                 {ShortTimeString(traits.decay)} left

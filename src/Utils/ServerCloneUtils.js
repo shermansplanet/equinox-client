@@ -87,7 +87,11 @@ export function canTakeAction(player, action) {
         costItem,
         req.traitMatch || []
       );
-      if (count < req.min || (req.max !== undefined && count > req.max)) {
+      let fail = count < req.min || (req.max !== undefined && count > req.max);
+      if (req.invert) {
+        fail = !fail;
+      }
+      if (fail) {
         return false;
       }
     }

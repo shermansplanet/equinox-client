@@ -208,8 +208,11 @@ export default class Action extends React.Component {
               (variety ? GetName(this.state.items[variety], false) + " " : "") +
               GetName(this.state.items[traits.id], true) +
               (traits.decay == undefined
-                ? " (" + condensedInventory[ids[i]] + ")"
-                : " (" + ShortTimeString(traits.decay) + ")");
+                ? ""
+                : " (" + ShortTimeString(traits.decay) + ")") +
+              " (" +
+              condensedInventory[ids[i]] +
+              ")";
             return (
               <option key={i} value={id}>
                 {label}
@@ -228,7 +231,7 @@ export default class Action extends React.Component {
                     ) : (
                       <input
                         type="number"
-                        style={{ width: "30px" }}
+                        style={{ width: "45px" }}
                         value={chosenVariety[1] || 0}
                         onChange={e => {
                           const val = parseInt(e.target.value);
@@ -286,7 +289,7 @@ export default class Action extends React.Component {
                       <button
                         onClick={() =>
                           this.setState(oldState => {
-                            let el = [[ids[0], 0]];
+                            let el = [ids[0], 0];
                             if (!oldState.varieties[itemId]) {
                               oldState.varieties[itemId] = chosenVarieties;
                             }
@@ -318,6 +321,13 @@ export default class Action extends React.Component {
           var req = action.requirements[item];
           var hasEnough =
             count >= req.min && (req.max == undefined || count <= req.max);
+          if (item == "daytime") {
+            updates.push(
+              "This action is only available " +
+                (req.min == 0 ? "at night." : "during the day.")
+            );
+            continue;
+          }
           updates.push(
             <span>
               {hasEnough ? "You unlocked this with " : "Unlock this with "}

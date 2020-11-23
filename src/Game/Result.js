@@ -2,6 +2,7 @@ import React from "react";
 import app from "firebase/app";
 import "firebase/firestore";
 import "firebase/auth";
+import Actions from "./Actions";
 import { GetDocument, GetDocuments, GetPlace } from "../Utils/GameDataCache";
 import { GetName, AddLineBreaks, toChimes } from "../Utils/StyleUtils";
 import { condenseItems, GetTraits } from "../Utils/ServerCloneUtils";
@@ -90,7 +91,7 @@ export default class Result extends React.Component {
     }
 
     if (actionData.check != undefined) {
-      let fail = this.props.player.result == 0;
+      let fail = resultData.isFailure || false;
       updates.push(
         <span>
           You {fail ? "failed" : "succeeded"} in a{" "}
@@ -100,6 +101,11 @@ export default class Result extends React.Component {
             : "!"}
         </span>
       );
+      if (resultData.isEither) {
+        updates.push(
+          "(This result is possible with either success or failure.)"
+        );
+      }
     }
 
     if (resultData.skills != undefined) {
@@ -171,39 +177,52 @@ export default class Result extends React.Component {
       updates = [];
     }
 
+    let hasActions = (resultData.actions || []).length > 0;
+
     return (
-      <div className="action">
-        <div className="actionBody">
-          {AddLineBreaks(resultData.text)}
-          {updates.length == 0 ? null : <div className="divider" />}
-        </div>
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "row",
-            justifyContent: "space-between",
-            alignItems: "flex-start"
-          }}
-        >
-          <div>
-            {updates.map((data, id) => (
-              <div key={id} className="update">
-                {data}
-              </div>
-            ))}
+      <div key={this.state.action}>
+        <div className="action" key={this.props.player.action}>
+          <div className="actionBody">
+            {AddLineBreaks(resultData.text)}
+            {updates.length == 0 ? null : <div className="divider" />}
           </div>
-          <button
-            className="actionButton"
+          <div
             style={{
-              marginLeft: "10px",
-              marginTop: updates.length > 0 ? "0px" : "10px"
+              display: "flex",
+              flexDirection: "row",
+              justifyContent: "space-between",
+              alignItems: "flex-start"
             }}
-            disabled={this.props.player.action == ""}
-            onClick={this.takeAction}
           >
-            Proceed
-          </button>
+            <div>
+              {updates.map((data, id) => (
+                <div key={id} className="update">
+                  {data}
+                </div>
+              ))}
+            </div>
+            {hasActions ? null : (
+              <button
+                className="actionButton"
+                style={{
+                  marginLeft: "10px",
+                  marginTop: updates.length > 0 ? "0px" : "10px"
+                }}
+                disabled={this.props.action == ""}
+                onClick={this.takeAction}
+              >
+                Proceed
+              </button>
+            )}
+          </div>
         </div>
+        {hasActions ? (
+          <Actions
+            noExtras={true}
+            player={this.props.player}
+            action={this.props.action}
+          />
+        ) : null}
       </div>
     );
   }

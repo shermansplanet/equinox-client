@@ -17,7 +17,7 @@ export default class Actions extends React.Component {
 
   render() {
     let player = this.props.player;
-    var enabled = this.props.action == "" && player.result == -1;
+    var enabled = (this.props.action == "") == (player.result == -1);
     if (this.state.screen === "home") {
       return (
         <ManageHome

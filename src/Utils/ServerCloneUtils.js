@@ -157,7 +157,7 @@ export function getValue(id, items, first = true) {
   if (item === undefined) {
     return 0;
   }
-  let val = coeff * (item.value || item.derivedValue || 0);
+  let val = coeff * (item.derivedValue || item.value || 0);
   if (first) {
     val = Math.floor(val);
   }

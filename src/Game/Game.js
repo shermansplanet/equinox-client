@@ -125,7 +125,13 @@ export default class Game extends React.Component {
     var content = null;
     let showResult = player.result >= 0 && this.state.action != "";
     if (showResult) {
-      content = <Result player={player} action={this.state.action} />;
+      content = (
+        <Result
+          key={this.state.action + "_" + player.result}
+          player={player}
+          action={this.state.action}
+        />
+      );
     } else {
       content = (
         <div

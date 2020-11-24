@@ -21,7 +21,9 @@ export default class Alchemy extends React.Component {
       currentlyDragging: null,
       secondary: null,
       actions: [],
-      mapping: { itemsToRender: [], selfOptions: [], otherOptions: [] }
+      mapping: { itemsToRender: [], selfOptions: [], otherOptions: [] },
+      showLights: false,
+      showContainers: false
     };
     this.actions = [];
     this.dom = {};
@@ -154,11 +156,13 @@ export default class Alchemy extends React.Component {
         itemList.push(...Object.keys(contains));
       }
     }
-    var actionDocs = await GetDocuments(
-      "actions",
-      this.props.player.availableActions
+    let availableActions = this.props.player.availableActions.filter(
+      action =>
+        (this.state.showLights || action !== "0HKutIBlqrZNKBQwkGu6") &&
+        (this.state.showContainers || action !== "I8W7ckEAadDwnFijHYuN")
     );
-    for (let i of this.props.player.availableActions) {
+    var actionDocs = await GetDocuments("actions", availableActions);
+    for (let i of availableActions) {
       for (let itemId in actionDocs[i].matchingIds) {
         itemList.push(itemId);
       }
@@ -184,7 +188,9 @@ export default class Alchemy extends React.Component {
       JSON.stringify(Object.keys(this.props.player.inventory)) !==
         JSON.stringify(Object.keys(prevProps.player.inventory)) ||
       JSON.stringify(Object.keys(this.props.player.availableActions)) !==
-        JSON.stringify(Object.keys(prevProps.player.availableActions))
+        JSON.stringify(Object.keys(prevProps.player.availableActions)) ||
+      this.state.showLights !== prevState.showLights ||
+      this.state.showContainers !== prevState.showContainers
     ) {
       this.updateDocs();
     }
@@ -448,13 +454,39 @@ export default class Alchemy extends React.Component {
     }
     let renderedItems = this.renderItems();
     return (
-      <div>
+      <div style={{ color: "var(--light" }}>
         <div className="lightDivider" />
-        <div
-          style={{ color: "var(--light", margin: "8px", textAlign: "center" }}
-        >
+        <div style={{ margin: "8px", textAlign: "center" }}>
           Drag items to each other to unlock actions. Different items may be
           available in different locations.
+        </div>
+        <div className="lightDivider" style={{ marginBottom: "8px" }} />
+        <div>
+          <button
+            key={"showLights " + this.state.showLights}
+            className={
+              "checkboxButton" + (this.state.showLights ? " checked" : "")
+            }
+            onClick={() => {
+              this.setState(oldState => {
+                return { showLights: !oldState.showLights };
+              });
+            }}
+          />
+          Show Lights
+          <button
+            key={"showContainers " + this.state.showContainers}
+            className={
+              "checkboxButton" + (this.state.showContainers ? " checked" : "")
+            }
+            style={{ marginLeft: "20px" }}
+            onClick={() => {
+              this.setState(oldState => {
+                return { showContainers: !oldState.showContainers };
+              });
+            }}
+          />
+          Show Containers
         </div>
         <div className="lightDivider" style={{ marginBottom: "8px" }} />
         <div

@@ -468,7 +468,9 @@ export default class Alchemy extends React.Component {
           }}
         >
           The alchemy system is in its very early stages, and is not
-          feature-complete.
+          feature-complete. You are encouraged to see what can be done with
+          various items that appear here, but unless you are explicitly told so,
+          you will not need to use the alchemy system to unlock any options.
         </div>
         <div className="lightDivider" style={{ marginBottom: "8px" }} />
         {renderedItems}

@@ -184,7 +184,9 @@ export default class Result extends React.Component {
         <div className="action" key={this.props.player.action}>
           <div className="actionBody">
             {AddLineBreaks(resultData.text)}
-            {updates.length == 0 ? null : <div className="divider" />}
+            {updates.length == 0 || resultData.text.length == 0 ? null : (
+              <div className="divider" />
+            )}
           </div>
           <div
             style={{

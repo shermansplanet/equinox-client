@@ -84,7 +84,7 @@ export default class Market extends React.Component {
       });
     }
     sellableItems.sort(
-      (a, b) => a.value - b.value + a.title.localeCompare(b.title) * 0.1
+      (b, a) => a.value - b.value + a.title.localeCompare(b.title) * 0.1
     );
     this.setState({ sellableItems, itemCounts });
   };
@@ -121,8 +121,10 @@ export default class Market extends React.Component {
           <td>
             {TitleCase(title)} {selling ? `(${i.count})` : ""}
           </td>
-          <td>{toChimes(baseValue * (selling ? 0.5 : 1))}</td>
-          <td>
+          <td style={{ width: "60px" }}>
+            {toChimes(baseValue * (selling ? 0.5 : 1))}
+          </td>
+          <td style={{ width: "180px" }}>
             <input
               type="number"
               style={{ width: "40px", marginRight: "4px" }}

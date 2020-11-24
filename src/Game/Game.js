@@ -72,6 +72,17 @@ export default class Game extends React.Component {
             : "actions";
         this.switchingToTab = newState.currentTab;
         newState.loading = newState.currentTab != this.state.currentTab;
+        if (
+          this.state.action !== null &&
+          this.state.action !== "" &&
+          newState.action !== ""
+        ) {
+          newState.userData = this.state.userData;
+          if (newState.userData !== null) {
+            console.log(this.state.action, newState.action);
+            newState.loading = true;
+          }
+        }
         this.setState(newState);
       });
 

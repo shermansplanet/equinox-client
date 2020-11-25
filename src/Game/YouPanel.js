@@ -77,6 +77,9 @@ export default class YouPanel extends React.Component {
       let bleedMap = this.props.player.bleedMap[id] || {};
       let preciseValue = this.props.player.skills[id];
       let skillValue = Math.round(preciseValue);
+      if (base == 0 && skillValue == 0) {
+        return null;
+      }
       let hasBonus = false;
       let hasPenalty = false;
       let bleedLabels = [];
@@ -142,7 +145,9 @@ export default class YouPanel extends React.Component {
             margin: "4px"
           }}
         >
-          Your base traits will bleed over into related traits.
+          Your base traits will{" "}
+          <span style={{ color: "#6af", opacity: 1 }}>bleed</span> over into
+          related traits.
         </div>
         <div className="itemContainer">{renderedSkills}</div>
       </div>

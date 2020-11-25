@@ -75,18 +75,24 @@ export default class YouPanel extends React.Component {
       let base = this.props.player.baseSkills[id] || 0;
       base = Math.round(base * 100) / 100;
       let bleedMap = this.props.player.bleedMap[id] || {};
-      let skillValue = this.props.player.skills[id];
+      let preciseValue = this.props.player.skills[id];
+      let skillValue = Math.round(preciseValue);
       let hasBonus = false;
       let hasPenalty = false;
       let bleedLabels = [];
       for (let bleedName in bleedMap) {
-        let bonus = bleedMap[bleedName];
+        let bonus = Math.round(bleedMap[bleedName] * 100) / 100;
         hasBonus = hasBonus || bonus > 0;
         hasPenalty = hasPenalty || bonus < 0;
         bleedLabels.push(
           <div className={bonus > 0 ? "skillBonus" : "skillPenalty"}>
             <b>{bonus > 0 ? "+" + bonus : bonus}</b> from <b>{bleedName}</b>
           </div>
+        );
+      }
+      if (bleedLabels.length > 0) {
+        bleedLabels.push(
+          <div>Total: {Math.round(preciseValue * 1000) / 1000}</div>
         );
       }
       return (

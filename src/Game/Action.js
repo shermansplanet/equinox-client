@@ -128,6 +128,9 @@ export default class Action extends React.Component {
     } else {
       args.itemVarieties = JSON.stringify(this.state.varieties);
     }
+    if (action_id == "softRefresh") {
+      args.oldAction = this.props.player.action;
+    }
     this.db
       .collection("gameplay")
       .doc(uid)

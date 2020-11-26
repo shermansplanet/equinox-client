@@ -322,6 +322,9 @@ export default class Action extends React.Component {
             count += player.inventoryTotals[i] || 0;
           }
           var req = action.requirements[item];
+          if (this.state.items[item].isProgress && count > req.max) {
+            return null;
+          }
           var hasEnough =
             count >= req.min && (req.max == undefined || count <= req.max);
           if (item == "daytime") {

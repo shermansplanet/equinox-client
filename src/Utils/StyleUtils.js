@@ -7,7 +7,7 @@ export const monthColors = [
   "#2ea041",
   "#ceac45",
   "#d97500",
-  "#16dbe1",
+  "#26cbd1",
   "#9fadb6"
 ];
 

@@ -314,7 +314,7 @@ export default class Action extends React.Component {
 
       if (action.requirements != null) {
         for (var item in action.requirements) {
-          if (item.startsWith("checkpoint") || item == "month") {
+          if (item.startsWith("checkpoint")) {
             continue;
           }
           let count = 0;
@@ -324,6 +324,9 @@ export default class Action extends React.Component {
           var req = action.requirements[item];
           if (this.state.items[item].isProgress && count > req.max) {
             return null;
+          }
+          if (item == "month") {
+            continue;
           }
           var hasEnough =
             count >= req.min && (req.max == undefined || count <= req.max);

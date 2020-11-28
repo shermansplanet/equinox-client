@@ -129,7 +129,7 @@ export default class Action extends React.Component {
       args.itemVarieties = JSON.stringify(this.state.varieties);
     }
     if (action_id == "softRefresh") {
-      args.oldAction = this.props.player.action;
+      args.oldAction = this.props.player.action || "";
     }
     this.db
       .collection("gameplay")
@@ -325,11 +325,15 @@ export default class Action extends React.Component {
           if (this.state.items[item].isProgress && count > req.max) {
             return null;
           }
-          if (item == "month") {
-            continue;
-          }
           var hasEnough =
             count >= req.min && (req.max == undefined || count <= req.max);
+          hasEnough = (req.invert || false) != hasEnough;
+          if (item == "month") {
+            if (!hasEnough) {
+              return null;
+            }
+            continue;
+          }
           if (item == "daytime") {
             updates.push(
               "This action is only available " +

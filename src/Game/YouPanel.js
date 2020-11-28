@@ -166,6 +166,7 @@ export default class YouPanel extends React.Component {
       if (!item || !item.name || count <= 0 || item.hidden) {
         continue;
       }
+      count = Math.round(count * 100) / 100;
       var c = item.category;
       if (c == undefined) {
         c = "items";

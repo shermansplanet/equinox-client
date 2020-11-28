@@ -79,7 +79,8 @@ export default class StatusPanel extends React.Component {
             }}
           >
             {TitleCase(skill.name)} x
-            {Math.pow(item.skill_coeffs[skillId], count)}
+            {Math.round(Math.pow(item.skill_coeffs[skillId], count) * 1000) /
+              1000}
           </div>
         );
       }

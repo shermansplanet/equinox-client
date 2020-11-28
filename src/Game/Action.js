@@ -175,6 +175,7 @@ export default class Action extends React.Component {
           for (let i of action.matchingIds[item]) {
             count += player.inventoryTotals[i] || 0;
           }
+          count = Math.round(count * 1000) / 1000;
           var hasEnough = count >= action.costs[item];
           updates.push(
             <span>
@@ -274,6 +275,11 @@ export default class Action extends React.Component {
                         this.setState(oldState => {
                           if (!oldState.varieties[itemId]) {
                             oldState.varieties[itemId] = chosenVarieties;
+                          }
+                          for (let otherItem of oldState.varieties[itemId]) {
+                            if (otherItem[0] == val) {
+                              return;
+                            }
                           }
                           if (
                             condensedInventory[val] <

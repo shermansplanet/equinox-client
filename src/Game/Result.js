@@ -147,6 +147,7 @@ export default class Result extends React.Component {
       let baseId = itemUpdate.split("&")[0];
       let item = this.state.items[baseId];
       let itemAmount = condensedInventory[itemUpdate] || 0;
+      itemAmount = Math.round(itemAmount * 1000) / 1000;
       var delta = itemDeltas[itemUpdate];
       if (delta === undefined || delta === 0) {
         continue;

@@ -64,16 +64,18 @@ export default class Action extends React.Component {
     for (let i of costKeys) {
       for (let itemToMatch of data.matchingIds[i]) {
         if (itemToMatch.includes("$")) {
-          itemList.push(itemToMatch.split("$")[0]);
-          itemList.push(itemToMatch.split("$")[1]);
-          itemToMatch = itemToMatch.split("$")[0];
-        }
-        for (let item in player.inventory) {
-          if (item.startsWith(itemToMatch)) {
-            itemList.push(item);
-            let variety = GetTraits(item).variety;
-            if (variety !== undefined) {
-              itemList.push(variety);
+          let bits = itemToMatch.split("$");
+          itemList.push(bits[0]);
+          itemList.push(bits[1]);
+          itemToMatch = bits[0];
+        } else {
+          for (let item in player.inventory) {
+            if (item.startsWith(itemToMatch)) {
+              itemList.push(item);
+              let variety = GetTraits(item).variety;
+              if (variety !== undefined) {
+                itemList.push(variety);
+              }
             }
           }
         }
@@ -86,9 +88,17 @@ export default class Action extends React.Component {
     for (let itemId in data.costs) {
       let ids = [];
       for (let itemToMatch of data.matchingIds[itemId]) {
+        let bits = itemToMatch.split("$");
         for (let i in condensedInventory) {
-          if (i.startsWith(itemToMatch)) {
-            ids.push(i);
+          if (bits.length == 1) {
+            if (i.startsWith(itemToMatch)) {
+              ids.push(i);
+            }
+          } else {
+            let traits = GetTraits(i);
+            if ((traits.id = bits[0] && traits.variety == bits[1])) {
+              ids.push(i);
+            }
           }
         }
       }
@@ -212,9 +222,17 @@ export default class Action extends React.Component {
           }
           let ids = [];
           for (let itemToMatch of action.matchingIds[originalItem]) {
+            let bits = itemToMatch.split("$");
             for (let i in condensedInventory) {
-              if (i.startsWith(itemToMatch)) {
-                ids.push(i);
+              if (bits.length == 1) {
+                if (i.startsWith(itemToMatch)) {
+                  ids.push(i);
+                }
+              } else {
+                let traits = GetTraits(i);
+                if (traits.id == bits[0] && traits.variety == bits[1]) {
+                  ids.push(i);
+                }
               }
             }
           }
@@ -222,7 +240,7 @@ export default class Action extends React.Component {
             continue;
           }
           const itemId = item;
-          let chosenVarieties = this.state.varieties[item];
+          let chosenVarieties = this.state.varieties[originalItem];
           let options = ids.map((id, i) => {
             let traits = GetTraits(id);
             let variety = traits.variety;

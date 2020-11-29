@@ -356,9 +356,6 @@ export default class Action extends React.Component {
 
       if (action.requirements != null) {
         for (var item in action.requirements) {
-          if (item.startsWith("checkpoint")) {
-            continue;
-          }
           let count = 0;
           for (let i of action.matchingIds[item]) {
             count += player.inventoryTotals[i] || 0;
@@ -382,6 +379,18 @@ export default class Action extends React.Component {
               "This action is only available " +
                 (req.min == 0 ? "at night." : "during the day.")
             );
+            continue;
+          }
+          if (item.startsWith("checkpoint")) {
+            if (hasEnough && req.max) {
+              updates.push(
+                <span>
+                  {" "}
+                  This action will become unavailable in{" "}
+                  {RealTimeString(Math.round(req.max - count))} (real time)
+                </span>
+              );
+            }
             continue;
           }
           updates.push(

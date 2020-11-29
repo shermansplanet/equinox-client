@@ -63,7 +63,7 @@ export default class Clock extends React.Component {
       >
         <circle
           strokeDasharray="15 125"
-          strokeDashoffset={-i * 17.3}
+          strokeDashoffset={-((i + 1) % 8) * 17.3}
           stroke={color}
           strokeWidth="4"
           fill="transparent"
@@ -170,7 +170,8 @@ export default class Clock extends React.Component {
           <div
             className="clockTransition"
             style={{
-              transform: "rotate(" + GetYearPercent() * 360 + "deg)"
+              transform:
+                "rotate(" + ((GetYearPercent() * 360 + 45) % 360) + "deg)"
             }}
           >
             <div className="smallerHand">{smallhand_svg}</div>

@@ -40,6 +40,7 @@ export default class Actions extends React.Component {
         key={id + a.action + a.locked}
         highlighted={this.props.action == a.action}
         delay={id * 0.1}
+        currentAction={this.props.action}
         player={player}
         action={a.action}
         locked={a.locked}

@@ -63,6 +63,11 @@ export default class Action extends React.Component {
     let itemList = [...costKeys, ...Object.keys(data.requirements || {})];
     for (let i of costKeys) {
       for (let itemToMatch of data.matchingIds[i]) {
+        if (itemToMatch.includes("$")) {
+          itemList.push(itemToMatch.split("$")[0]);
+          itemList.push(itemToMatch.split("$")[1]);
+          itemToMatch = itemToMatch.split("$")[0];
+        }
         for (let item in player.inventory) {
           if (item.startsWith(itemToMatch)) {
             itemList.push(item);
@@ -129,7 +134,7 @@ export default class Action extends React.Component {
       args.itemVarieties = JSON.stringify(this.state.varieties);
     }
     if (action_id == "softRefresh") {
-      args.oldAction = this.props.player.action || "";
+      args.oldAction = this.props.currentAction || "";
     }
     this.db
       .collection("gameplay")
@@ -154,14 +159,16 @@ export default class Action extends React.Component {
             ? 0
             : this.props.player.skills[skillData.id] || 0;
         var skillName = skillData.name;
+        let difficulty = action.check.difficulty;
+        for (let i in action.check.difficultyCoeffs || {}) {
+          difficulty +=
+            (player.inventoryTotals[i] || 0) * action.check.difficultyCoeffs[i];
+        }
         updates.push(
           <span>
             Your <b>{skillName}</b> {skillData.label} gives you a{" "}
             <b>
-              {Math.min(
-                100,
-                Math.round(((playerSkill + 2) / action.check.difficulty) * 100)
-              )}
+              {Math.min(99, Math.round(((playerSkill + 2) / difficulty) * 100))}
               %
             </b>{" "}
             chance of success.
@@ -170,21 +177,32 @@ export default class Action extends React.Component {
       }
 
       if (action.costs != null) {
-        for (var item in action.costs) {
+        for (var originalItem in action.costs) {
+          let suffix = null;
+          let item = originalItem;
+          if (item.includes("$")) {
+            let bits = originalItem.split("$");
+            suffix = bits[1];
+            item = bits[0];
+          }
           let count = 0;
-          for (let i of action.matchingIds[item]) {
+          for (let i of action.matchingIds[originalItem]) {
             count += player.inventoryTotals[i] || 0;
           }
           count = Math.round(count * 1000) / 1000;
-          var hasEnough = count >= action.costs[item];
+          var hasEnough = count >= action.costs[originalItem];
           updates.push(
             <span>
               {hasEnough ? "This will cost you " : "Unlock this with "}
               <b>
                 {item == "chimes"
                   ? toChimes(action.costs[item])
-                  : action.costs[item]}{" "}
-                {GetName(this.state.items[item], action.costs[item] != 1)}
+                  : action.costs[originalItem]}{" "}
+                {suffix == null ? null : this.state.items[suffix].name}{" "}
+                {GetName(
+                  this.state.items[item],
+                  action.costs[originalItem] != 1
+                )}
               </b>{" "}
               (you have <b>{item == "chimes" ? toChimes(count) : count}</b>).
             </span>
@@ -193,7 +211,7 @@ export default class Action extends React.Component {
             continue;
           }
           let ids = [];
-          for (let itemToMatch of action.matchingIds[item]) {
+          for (let itemToMatch of action.matchingIds[originalItem]) {
             for (let i in condensedInventory) {
               if (i.startsWith(itemToMatch)) {
                 ids.push(i);
@@ -331,6 +349,7 @@ export default class Action extends React.Component {
           if (this.state.items[item].isProgress && count > req.max) {
             return null;
           }
+          count = Math.round(count * 1000) / 1000;
           var hasEnough =
             count >= req.min && (req.max == undefined || count <= req.max);
           hasEnough = (req.invert || false) != hasEnough;

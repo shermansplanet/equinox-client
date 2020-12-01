@@ -55,6 +55,46 @@ export default class Actions extends React.Component {
         <Market key="market" player={player} action={this.props.action} />
       );
     }
+    if (
+      player.actionSet === "llTkIjxtQPqnYmcv6K5r" &&
+      player.silverworks != undefined
+    ) {
+      renderedActions.push(
+        player.silverworks.map((data, i) => {
+          const ci = i;
+          return (
+            <div
+              className="action"
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center"
+              }}
+              key={"silverwork" + i}
+            >
+              <div className="actionTitle">{data.name}</div>
+              <button
+                className="actionButton"
+                disabled={!enabled}
+                onClick={() => {
+                  var uid = app.auth().currentUser.uid;
+                  app
+                    .firestore()
+                    .collection("gameplay")
+                    .doc(uid)
+                    .set({
+                      action: "enter_silverwork",
+                      args: { silverworkIndex: ci }
+                    });
+                }}
+              >
+                Enter
+              </button>
+            </div>
+          );
+        })
+      );
+    }
     if (player.actionSet === "home" && player.address) {
       renderedActions.push(
         <div

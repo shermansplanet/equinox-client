@@ -382,14 +382,18 @@ export default class Action extends React.Component {
             continue;
           }
           if (item.startsWith("checkpoint")) {
-            if (hasEnough && req.max) {
-              updates.push(
-                <span>
-                  {" "}
-                  This action will become unavailable in{" "}
-                  {RealTimeString(Math.round(req.max - count))} (real time)
-                </span>
-              );
+            if (req.max) {
+              if (count > req.max) {
+                updates.push("This option is no longer available.");
+              } else {
+                updates.push(
+                  <span>
+                    {" "}
+                    This action will become unavailable in{" "}
+                    {RealTimeString(Math.round(req.max - count))} (real time)
+                  </span>
+                );
+              }
             }
             continue;
           }

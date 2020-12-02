@@ -66,7 +66,7 @@ export default class YouPanel extends React.Component {
     }
     skillList.sort(
       (a, b) =>
-        skills[b] - skills[a] + docs[a].name.localeCompare(docs[b].name) * 0.5
+        skills[b] - skills[a] + docs[a].name.localeCompare(docs[b].name) * 0.01
     );
     var renderedSkills = skillList.map((id, i) => {
       var skill = docs[id];

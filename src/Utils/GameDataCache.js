@@ -1,9 +1,14 @@
 import app from "firebase/app";
 import "firebase/firestore";
+import { CurrentTime, MS_PER_GAME_DAY } from "./TimeUtils";
+const SILVERWORK_PREFIX = "silverworkTrait_";
 
 var gameDataCache = {};
 
 export async function GetPlace(player, document) {
+  if (document.startsWith("silverwork_")) {
+    return await GetSilverworkLocation(player, document);
+  }
   if (document !== "home") {
     return GetDocument("locations", document);
   }
@@ -32,7 +37,7 @@ export async function GetDocument(collection, document) {
   if (document === undefined) {
     return null;
   }
-  document = document.split("&")[0];
+  document = document.split("&")[0].replace(SILVERWORK_PREFIX, "");
   if (gameDataCache[collection] == undefined) {
     gameDataCache[collection] = {};
   }
@@ -64,4 +69,32 @@ export async function GetDocuments(collection, documentList) {
       });
     }
   });
+}
+
+const silverworkTypeMapping = {
+  SsIoPeBfmKqGuCX5TMF3: "Warehouse"
+};
+
+async function GetSilverworkLocation(player, actionSet) {
+  console.log("TEST");
+  let baseWork = await GetDocument("locations", "base_silverwork");
+  let work = player.silverworks[parseInt(actionSet.split("_")[1])];
+  baseWork.name = work.name;
+  let typeName = "";
+  for (let n of work.choices) {
+    let id = n.split("&")[0];
+    if (silverworkTypeMapping[id] !== undefined) {
+      typeName = silverworkTypeMapping[id];
+    }
+  }
+  baseWork.text = `Type: ${typeName}, Quality: ${
+    work.quality
+  }, Capacity: ${GetSilverworkCapacity(work, player)}`;
+  return baseWork;
+}
+
+export function GetSilverworkCapacity(work, player) {
+  let daysSinceCreation =
+    (CurrentTime(player.minutes) - work.creationTime) / MS_PER_GAME_DAY;
+  return Math.round(50 + Math.pow(daysSinceCreation, 1.5));
 }

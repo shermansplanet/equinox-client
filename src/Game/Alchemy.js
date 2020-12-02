@@ -22,8 +22,8 @@ export default class Alchemy extends React.Component {
       secondary: null,
       actions: [],
       mapping: { itemsToRender: [], selfOptions: [], otherOptions: [] },
-      showLights: false,
-      showContainers: false
+      showLights: true,
+      showContainers: true
     };
     this.actions = [];
     this.dom = {};
@@ -460,8 +460,14 @@ export default class Alchemy extends React.Component {
           Drag items to each other to unlock actions. Different items may be
           available in different locations.
         </div>
-        <div className="lightDivider" style={{ marginBottom: "8px" }} />
-        <div>
+        <div className="lightDivider" />
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center"
+          }}
+        >
           <button
             key={"showLights " + this.state.showLights}
             className={

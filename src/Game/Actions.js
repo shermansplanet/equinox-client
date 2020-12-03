@@ -56,7 +56,7 @@ export default class Actions extends React.Component {
       );
     }
     if (
-      player.actionSet === "llTkIjxtQPqnYmcv6K5r" &&
+      player.actionSet === "mjat82oOzHMieBQJsBD2" &&
       player.silverworks != undefined
     ) {
       renderedActions.push(

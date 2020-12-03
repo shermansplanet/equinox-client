@@ -452,6 +452,8 @@ export default class Action extends React.Component {
       title = title.replace("$" + i, this.props.itemMap[i].name);
     }
 
+    let justUpdates = updates.length > 0 && title == "" && action.text == "";
+
     return (
       <div
         className={
@@ -461,7 +463,10 @@ export default class Action extends React.Component {
             ? "locked action"
             : "action"
         }
-        style={{ animationDelay: (this.props.delay || 0 - timeElapsed) + "s" }}
+        style={{
+          animationDelay: (this.props.delay || 0 - timeElapsed) + "s",
+          marginTop: justUpdates ? "-18px" : null
+        }}
       >
         <div
           style={{

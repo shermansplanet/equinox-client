@@ -72,7 +72,8 @@ export async function GetDocuments(collection, documentList) {
 }
 
 const silverworkTypeMapping = {
-  SsIoPeBfmKqGuCX5TMF3: "Warehouse"
+  SsIoPeBfmKqGuCX5TMF3: "Warehouse",
+  C7FZbmkTdGjyaHf2eJAt: "Phone Booth"
 };
 
 async function GetSilverworkLocation(player, actionSet) {

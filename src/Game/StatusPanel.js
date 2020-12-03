@@ -51,6 +51,19 @@ export default class StatusPanel extends React.Component {
     }
     let player = this.props.player;
     let rendered = [];
+    if (this.props.player.timeSinceLastSleep >= 960) {
+      rendered.push({
+        div: (
+          <div key={"sleepy"} style={{ marginTop: "10px" }}>
+            You're getting tired...
+            <div className="itemInfo">
+              It's been more than 16 hours since you last slept.
+            </div>
+          </div>
+        ),
+        rank: -1
+      });
+    }
     for (let id in player.inventory) {
       let traits = GetTraits(id);
       let item = this.state.itemDocs[traits.id];

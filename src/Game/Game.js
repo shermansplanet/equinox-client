@@ -225,7 +225,12 @@ export default class Game extends React.Component {
         />
         <div className="gameColumns">
           <div className={showSidebars ? "" : "mobileHide"}>
-            <Clock player={player} />
+            <RightSidebar
+              action={this.state.action}
+              location={this.state.location}
+              player={player}
+              onSidebarAction={() => (this.backToActions = true)}
+            />
           </div>
           <div
             className={showSidebars ? "mainColumn mobileHide" : "mainColumn"}
@@ -274,12 +279,7 @@ export default class Game extends React.Component {
             )}
           </div>
           <div className={showSidebars ? "" : "mobileHide"}>
-            <RightSidebar
-              action={this.state.action}
-              location={this.state.location}
-              player={player}
-              onSidebarAction={() => (this.backToActions = true)}
-            />
+            <Clock player={player} />
           </div>
         </div>
       </div>

@@ -2,7 +2,11 @@ import React from "react";
 import app from "firebase/app";
 import "firebase/firestore";
 import "firebase/auth";
-import { GetDocument, GetDocuments } from "../Utils/GameDataCache";
+import {
+  GetDocument,
+  GetDocuments,
+  SILVERWORK_PREFIX
+} from "../Utils/GameDataCache";
 import {
   Subscribe,
   Unsubscribe,
@@ -360,8 +364,10 @@ export default class Action extends React.Component {
           for (let i of action.matchingIds[item]) {
             count += player.inventoryTotals[i] || 0;
           }
+          let isSilverReq = item.includes(SILVERWORK_PREFIX);
+          let baseId = item.replace(SILVERWORK_PREFIX, "");
           var req = action.requirements[item];
-          if (this.state.items[item].isProgress && count > req.max) {
+          if (this.state.items[baseId].isProgress && count > req.max) {
             return null;
           }
           count = Math.round(count * 1000) / 1000;
@@ -399,7 +405,10 @@ export default class Action extends React.Component {
           }
           updates.push(
             <span>
-              {hasEnough ? "You unlocked this with " : "Unlock this with "}
+              {hasEnough
+                ? (isSilverReq ? "Your silverwork" : "You") +
+                  " unlocked this with "
+                : "Unlock this with "}
               {req.max == undefined
                 ? `at least ${req.min} `
                 : req.min == req.max
@@ -408,12 +417,11 @@ export default class Action extends React.Component {
                 ? `at most ${req.max} `
                 : `between ${req.min} and ${req.max} `}
               <b>
-                {GetName(this.state.items[item], (req.max || req.min) != 1)}
+                {GetName(this.state.items[baseId], (req.max || req.min) != 1)}
               </b>
               {req.min == req.max && hasEnough ? null : (
                 <span>
-                  {" "}
-                  (you have <b>{count}</b>)
+                  {" (" + (isSilverReq ? "it has" : "you have")} <b>{count}</b>)
                 </span>
               )}
               .

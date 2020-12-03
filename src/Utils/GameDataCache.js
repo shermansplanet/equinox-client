@@ -1,7 +1,7 @@
 import app from "firebase/app";
 import "firebase/firestore";
 import { CurrentTime, MS_PER_GAME_DAY } from "./TimeUtils";
-const SILVERWORK_PREFIX = "silverworkTrait_";
+export const SILVERWORK_PREFIX = "silverworkTrait_";
 
 var gameDataCache = {};
 

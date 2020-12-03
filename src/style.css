@@ -47,6 +47,7 @@ h1 {
 
 .gameColumns {
   display: flex;
+  flex-direction: row-reverse;
 }
 
 .locationHeading {

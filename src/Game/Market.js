@@ -62,6 +62,9 @@ export default class Market extends React.Component {
       let traits = GetTraits(i);
       let id = traits.id;
       let item = itemDocs[id];
+      if (item == undefined) {
+        continue;
+      }
       if (item.derivedValue == undefined || item.derivedValue == 0) continue;
       let valueId =
         traits.variety == undefined ? id : id + "$" + traits.variety;
@@ -84,7 +87,7 @@ export default class Market extends React.Component {
       });
     }
     sellableItems.sort(
-      (b, a) => a.value - b.value + a.title.localeCompare(b.title) * 0.1
+      (b, a) => a.value - b.value - a.title.localeCompare(b.title) * 0.1
     );
     this.setState({ sellableItems, itemCounts });
   };

@@ -18,7 +18,8 @@ import {
   GetDayPercent,
   GetHourPercent,
   GetYearPercent,
-  MS_PER_GAME_MONTH
+  MS_PER_GAME_MONTH,
+  monthNames
 } from "../Utils/TimeUtils";
 import { monthColors } from "../Utils/StyleUtils";
 
@@ -27,7 +28,8 @@ export default class Clock extends React.Component {
     super(props);
     this.auth = app.auth();
     this.state = {
-      minutes: this.props.player.minutes
+      minutes: this.props.player.minutes,
+      expanded: false
     };
   }
 
@@ -51,28 +53,51 @@ export default class Clock extends React.Component {
   }
 
   renderSeasonDots = () => {
-    return monthColors.map((color, i) => (
-      <svg
-        key={i}
-        style={{
-          position: "absolute",
-          transform: "translate(-29.5px, -29.5px) rotate(-90deg)"
-        }}
-        width="60"
-        height="60"
-      >
-        <circle
-          strokeDasharray="15 125"
-          strokeDashoffset={-((i + 1) % 8) * 17.3}
-          stroke={color}
-          strokeWidth="4"
-          fill="transparent"
-          r="22"
-          cx="30"
-          cy="30"
-        />
-      </svg>
-    ));
+    return monthColors.map((color, i) => {
+      let angle = ((i - 0.5) * Math.PI) / 4;
+      let r = 36;
+      let side = (i + 1) % 8 < 4;
+      return (
+        <div>
+          <svg
+            key={i}
+            style={{
+              position: "absolute",
+              transform: "translate(-29.5px, -29.5px) rotate(-90deg)"
+            }}
+            width="60"
+            height="60"
+          >
+            <circle
+              strokeDasharray="15 125"
+              strokeDashoffset={-((i + 1) % 8) * 17.3}
+              stroke={color}
+              strokeWidth="4"
+              fill="transparent"
+              r="22"
+              cx="30"
+              cy="30"
+            />
+          </svg>
+          {this.state.expanded ? (
+            <div
+              style={{
+                position: "absolute",
+                color: color,
+                fontWeight: "bold",
+                width: "200px",
+                textAlign: side ? "left" : "right",
+                transform: `translate(
+                ${Math.cos(angle) * r - (side ? 0 : 200)}px, 
+                ${Math.sin(angle) * r - 10}px)`
+              }}
+            >
+              The {monthNames[i]}
+            </div>
+          ) : null}
+        </div>
+      );
+    });
   };
 
   render() {
@@ -166,6 +191,89 @@ export default class Clock extends React.Component {
           </div>
         </div>
         <div className="clockTopCenter">
+          {this.state.expanded ? (
+            <div>
+              <div
+                style={{
+                  position: "absolute",
+                  background: "var(--dark)",
+                  width: "400px",
+                  marginLeft: "-200px",
+                  height: "100px",
+                  marginTop: "-50px",
+                  borderRadius: "100px"
+                }}
+              />
+              <div
+                style={{
+                  position: "absolute",
+                  background: "var(--dark)",
+                  width: "136px",
+                  marginLeft: "-83px",
+                  marginTop: "40px",
+                  borderRadius: "10px",
+                  color: "var(--light)",
+                  padding: "12px"
+                }}
+              >
+                <div style={{ height: "28px" }} />
+                45 Days per Month
+                <div className="lightDivider" style={{ margin: "4px" }} />
+                8 Months Per Year
+                <div className="lightDivider" style={{ margin: "4px" }} />
+                Game time is 12x as fast as real time
+              </div>
+              <div
+                style={{
+                  position: "absolute",
+                  background: "var(--light)",
+                  width: "2px",
+                  height: "30px",
+                  marginLeft: "-1px",
+                  marginTop: "-60px"
+                }}
+              />
+              <div
+                style={{
+                  position: "absolute",
+                  color: "var(--light)",
+                  fontSize: "10pt",
+                  width: "100px",
+                  marginTop: "-70px",
+                  marginLeft: "-54px",
+                  textAlign: "center",
+                  background: "var(--dark)",
+                  borderRadius: "0px 10px",
+                  padding: "4px"
+                }}
+              >
+                Winter Solstice
+              </div>
+              <div
+                style={{
+                  position: "absolute",
+                  background: "var(--light)",
+                  width: "2px",
+                  marginLeft: "-1px",
+                  height: "20px",
+                  marginTop: "30px"
+                }}
+              />
+              <div
+                style={{
+                  position: "absolute",
+                  color: "var(--light)",
+                  fontSize: "10pt",
+                  width: "100px",
+                  marginTop: "50px",
+                  marginLeft: "-50px",
+                  textAlign: "center"
+                }}
+              >
+                Summer Solstice
+              </div>
+            </div>
+          ) : null}
           {this.renderSeasonDots()}
           <div
             className="clockTransition"
@@ -176,6 +284,17 @@ export default class Clock extends React.Component {
           >
             <div className="smallerHand">{smallhand_svg}</div>
           </div>
+          <div
+            style={{
+              display: "absolute",
+              width: "50px",
+              height: "50px",
+              transform: "translate(-25px, -25px)",
+              borderRadius: "100px"
+            }}
+            onMouseEnter={() => this.setState({ expanded: true })}
+            onMouseLeave={() => this.setState({ expanded: false })}
+          />
         </div>
         <div className="clockDisplay">
           <b style={{ color: monthColors[GetCurrentMonth()] }}>

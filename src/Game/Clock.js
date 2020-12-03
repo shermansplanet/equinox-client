@@ -201,7 +201,8 @@ export default class Clock extends React.Component {
                   marginLeft: "-200px",
                   height: "100px",
                   marginTop: "-50px",
-                  borderRadius: "100px"
+                  borderRadius: "100px",
+                  boxShadow: "0 5px 5px 0 #0005"
                 }}
               />
               <div
@@ -213,7 +214,8 @@ export default class Clock extends React.Component {
                   marginTop: "40px",
                   borderRadius: "10px",
                   color: "var(--light)",
-                  padding: "12px"
+                  padding: "12px",
+                  boxShadow: "0 5px 5px 0 #0005"
                 }}
               >
                 <div style={{ height: "28px" }} />
@@ -255,8 +257,8 @@ export default class Clock extends React.Component {
                   background: "var(--light)",
                   width: "2px",
                   marginLeft: "-1px",
-                  height: "20px",
-                  marginTop: "30px"
+                  height: "16px",
+                  marginTop: "32px"
                 }}
               />
               <div

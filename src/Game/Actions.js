@@ -59,40 +59,43 @@ export default class Actions extends React.Component {
       player.actionSet === "mjat82oOzHMieBQJsBD2" &&
       player.silverworks != undefined
     ) {
-      renderedActions.push(
-        player.silverworks.map((data, i) => {
-          const ci = i;
-          return (
-            <div
-              className="action"
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center"
+      let silverworkActions = player.silverworks.map((data, i) => {
+        const ci = i;
+        return (
+          <div
+            className="action"
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center"
+            }}
+            key={"silverwork" + i}
+          >
+            <div className="actionTitle">{data.name}</div>
+            <button
+              className="actionButton"
+              disabled={!enabled}
+              onClick={() => {
+                var uid = app.auth().currentUser.uid;
+                app
+                  .firestore()
+                  .collection("gameplay")
+                  .doc(uid)
+                  .set({
+                    action: "enter_silverwork",
+                    args: { silverworkIndex: ci }
+                  });
               }}
-              key={"silverwork" + i}
             >
-              <div className="actionTitle">{data.name}</div>
-              <button
-                className="actionButton"
-                disabled={!enabled}
-                onClick={() => {
-                  var uid = app.auth().currentUser.uid;
-                  app
-                    .firestore()
-                    .collection("gameplay")
-                    .doc(uid)
-                    .set({
-                      action: "enter_silverwork",
-                      args: { silverworkIndex: ci }
-                    });
-                }}
-              >
-                Enter
-              </button>
-            </div>
-          );
-        })
+              Enter
+            </button>
+          </div>
+        );
+      });
+      renderedActions.splice(
+        player.availableActions.length,
+        0,
+        ...silverworkActions
       );
     }
     if (player.actionSet === "home" && player.address) {

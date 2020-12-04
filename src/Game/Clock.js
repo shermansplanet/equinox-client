@@ -108,7 +108,7 @@ export default class Clock extends React.Component {
     let sleeplessRot =
       this.state.minutes - 1440 + (this.props.player.timeSinceLastSleep % 1440);
     return (
-      <div style={{ width: "180px", margin: "8px" }}>
+      <div style={{ width: "180px", margin: "8px", marginTop: "-25px" }}>
         <svg className="progress-ring" width="140" height="140">
           <circle
             className="progress-ring__circle clockTransition"

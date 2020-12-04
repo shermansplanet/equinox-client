@@ -222,7 +222,10 @@ export default class Game extends React.Component {
         <div className="headerImageContainer">
           <img src={monthImages[GetCurrentMonth()]} className="headerImage" />
         </div>
-        <div style={{ background: "white", width: "100px", height: "100px" }} />
+        <div
+          className="lightDivider"
+          style={{ alignSelf: "stretch", padding: "1px", marginBottom: "10px" }}
+        />
         <QuickActions
           action={this.state.action}
           setTab={this.setTab}

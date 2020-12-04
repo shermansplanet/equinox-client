@@ -21,6 +21,8 @@ export const monthNames = [
   "Silver Engine"
 ];
 
+export const monthImages = ["https://i.imgur.com/2UyQI2x.png"];
+
 var callbacks = {};
 
 export function CurrentTime() {

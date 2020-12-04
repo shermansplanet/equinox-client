@@ -16,6 +16,7 @@ import Loader from "../Loader";
 import {
   GetTimeUntilNextSemester,
   monthNames,
+  monthImages,
   GetCurrentMonth
 } from "../Utils/TimeUtils";
 
@@ -218,6 +219,10 @@ export default class Game extends React.Component {
     return (
       <div className="gameContainer">
         <Header player={player} />
+        <div className="headerImageContainer">
+          <img src={monthImages[GetCurrentMonth()]} className="headerImage" />
+        </div>
+        <div style={{ background: "white", width: "100px", height: "100px" }} />
         <QuickActions
           action={this.state.action}
           setTab={this.setTab}

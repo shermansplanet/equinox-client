@@ -35,6 +35,19 @@ body {
   padding: 0px;
 }
 
+.headerImageContainer {
+  background: black;
+  width: 100%;
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: center;
+}
+
+.headerImage {
+  max-width: 100%;
+  max-height: 200px;
+}
+
 .mainColumn {
   max-width: 500px;
   padding: 8px;
@@ -146,7 +159,6 @@ button:focus {
   justify-content: flex-end;
   align-items: center;
   font-size: 11pt;
-  margin-bottom: 8px;
   align-self: stretch;
 }
 

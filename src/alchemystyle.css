@@ -30,6 +30,18 @@
   opacity: 0.5;
 }
 
+.alchemyDot {
+  width: 20px;
+  height: 20px;
+  border-radius: 10px;
+  margin: 6px;
+  display: inline-block;
+  font-weight: bold;
+  text-align: center;
+  font-size: 10pt;
+  line-height: 20px;
+}
+
 .element_fire {
   background-color: #fd8;
   color: #840;

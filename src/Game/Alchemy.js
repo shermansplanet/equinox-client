@@ -22,8 +22,8 @@ export default class Alchemy extends React.Component {
       secondary: null,
       actions: [],
       mapping: { itemsToRender: [], selfOptions: [], otherOptions: [] },
-      showLights: true,
-      showContainers: true
+      showLights: false,
+      showContainers: false
     };
     this.actions = [];
     this.dom = {};
@@ -117,7 +117,7 @@ export default class Alchemy extends React.Component {
           let itemName = itemNames[i];
           let choices = itemMapChoices[itemName];
           let map = choices[0];
-          if (choices.length > 1) {
+          if (itemNames.length > 1 && choices.length > 1) {
             let duplicateId = itemMapChoices[itemNames[i == 0 ? 1 : 0]][0].id;
             if (duplicateId == map.id) {
               map = choices[1];
@@ -453,6 +453,11 @@ export default class Alchemy extends React.Component {
       );
     }
     let renderedItems = this.renderItems();
+    let isVernal = this.props.player.inventory["1xDtdWx60VkVJXc1NzuR"] == 1;
+    let elements = isVernal
+      ? ["element_fire", "element_water", "element_earth"]
+      : ["element_fire", "element_earth", "element_water"];
+    let eNames = isVernal ? ["F", "W", "E"] : ["F", "E", "W"];
     return (
       <div style={{ color: "var(--light" }}>
         <div className="lightDivider" />
@@ -494,6 +499,38 @@ export default class Alchemy extends React.Component {
           />
           Show Containers
         </div>
+        <div className="lightDivider" />
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "center",
+            margin: "8px"
+          }}
+        >
+          <span>
+            Current alchemy cycle: <b>{isVernal ? "Vernal" : "Autumnal"}</b>
+          </span>
+          <div style={{ display: "flex", alignItems: "center" }}>
+            {elements.map((cname, i) => (
+              <div
+                key={i}
+                style={{
+                  margin: "0px 10px",
+                  display: "flex",
+                  alignItems: "center"
+                }}
+              >
+                <div className={"alchemyDot " + cname}>{eNames[i]}</div> +{" "}
+                <div className={"alchemyDot " + elements[(i + 1) % 3]}>
+                  {eNames[(i + 1) % 3]}
+                </div>{" "}
+                → <div className={"alchemyDot " + cname}>{eNames[i]}</div>
+              </div>
+            ))}
+          </div>
+        </div>
         <div className="lightDivider" style={{ marginBottom: "8px" }} />
         <div
           style={{
@@ -516,7 +553,13 @@ export default class Alchemy extends React.Component {
           <img src="https://i.imgur.com/xBrWxCm.png" className="croissant" />
           {(this.state.actions || []).map((actionId, i) => (
             <Action
-              key={i + "_" + actionId}
+              key={
+                i +
+                "_" +
+                actionId +
+                "_" +
+                JSON.stringify(this.state.itemMaps[actionId])
+              }
               highlighted={this.props.action == actionId}
               delay={0}
               player={this.props.player}

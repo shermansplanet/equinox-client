@@ -383,6 +383,14 @@ export default class Alchemy extends React.Component {
         let heaterTraits = GetTraits(heater);
         subLabels.push("🜂" + this.state.itemDocs[heaterTraits.id].name);
       }
+      if (traits.fireId != undefined) {
+        subLabels.push("On fire");
+      }
+      if (traits.fireId != undefined || traits.burnt > 0) {
+        subLabels.push(
+          `${((traits.burnt || 0) * 100) / item.traits.burnTime}% burnt`
+        );
+      }
       if (traits.temperature != undefined) {
         let temp = traits.temperature;
         let desc =
